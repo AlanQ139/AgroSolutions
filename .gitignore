@@ -1,0 +1,20 @@
+# Build
+bin/
+obj/
+
+# User files
+*.user
+*.suo
+*.userprefs
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml

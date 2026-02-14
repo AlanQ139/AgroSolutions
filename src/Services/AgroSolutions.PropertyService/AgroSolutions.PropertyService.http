@@ -1,0 +1,6 @@
+@AgroSolutions.PropertyService_HostAddress = http://localhost:5285
+
+GET {{AgroSolutions.PropertyService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
