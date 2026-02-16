@@ -19,5 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\AgroSolutions.Shared.Messages\AgroSolutions.Shared.Messages.csproj" />
+    <ProjectReference Include="..\..\Shared\AgroSolutions.Shared.Common\AgroSolutions.Shared.Common.csproj" />
   </ItemGroup>
 </Project>
