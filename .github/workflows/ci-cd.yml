@@ -1,0 +1,119 @@
+name: AgroSolutions CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Test
+      run: dotnet test --no-build --configuration Release --verbosity normal
+    
+    - name: Publish - IdentityService
+      run: dotnet publish src/Services/AgroSolutions.IdentityService/AgroSolutions.IdentityService.csproj -c Release -o ./publish/identity
+    
+    - name: Publish - PropertyService
+      run: dotnet publish src/Services/AgroSolutions.PropertyService/AgroSolutions.PropertyService.csproj -c Release -o ./publish/property
+    
+    - name: Publish - SensorIngestionService
+      run: dotnet publish src/Services/AgroSolutions.SensorIngestionService/AgroSolutions.SensorIngestionService.csproj -c Release -o ./publish/sensor
+    
+    - name: Publish - AlertService
+      run: dotnet publish src/Services/AgroSolutions.AlertService/AgroSolutions.AlertService.csproj -c Release -o ./publish/alert
+    
+    - name: Publish - ApiGateway
+      run: dotnet publish src/Services/AgroSolutions.ApiGateway/AgroSolutions.ApiGateway.csproj -c Release -o ./publish/gateway
+
+  build-docker-images:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker Images
+      run: docker-compose build
+    
+    - name: Save Docker Images
+      run: |
+        docker save agrosolutions-identity:latest -o identity.tar
+        docker save agrosolutions-property:latest -o property.tar
+        docker save agrosolutions-sensor:latest -o sensor.tar
+        docker save agrosolutions-alert:latest -o alert.tar
+        docker save agrosolutions-gateway:latest -o gateway.tar
+    
+    - name: Upload Docker Images as Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-images
+        path: |
+          identity.tar
+          property.tar
+          sensor.tar
+          alert.tar
+          gateway.tar
+        retention-days: 7
+
+  deploy-to-k8s:
+    runs-on: ubuntu-latest
+    needs: build-docker-images
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download Docker Images
+      uses: actions/download-artifact@v4
+      with:
+        name: docker-images
+    
+    - name: Load Docker Images
+      run: |
+        docker load -i identity.tar
+        docker load -i property.tar
+        docker load -i sensor.tar
+        docker load -i alert.tar
+        docker load -i gateway.tar
+    
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+    
+    # Note: Configurar secrets no GitHub para autenticação com cluster K8s
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+        echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+    
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f k8s/kubernetes-manifests.yaml
+        kubectl rollout status deployment/identity -n agrosolutions
+        kubectl rollout status deployment/property -n agrosolutions
+        kubectl rollout status deployment/sensor -n agrosolutions
+        kubectl rollout status deployment/alert -n agrosolutions
+        kubectl rollout status deployment/gateway -n agrosolutions
