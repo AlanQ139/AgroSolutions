@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sensor
+  namespace: agrosolutions
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sensor
+  template:
+    metadata:
+      labels:
+        app: sensor
+    spec:
+      containers:
+      - name: sensor
+        image: agrosolutions/sensor:latest
+        imagePullPolicy: Never
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: RabbitMQ__Host
+          value: "rabbitmq"
+        ports:
+        - containerPort: 80

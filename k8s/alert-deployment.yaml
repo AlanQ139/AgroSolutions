@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert
+  namespace: agrosolutions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alert
+  template:
+    metadata:
+      labels:
+        app: alert
+    spec:
+      containers:
+      - name: alert
+        image: agrosolutions/alert:latest
+        imagePullPolicy: Never
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: RabbitMQ__Host
+          value: "rabbitmq"
+        - name: ConnectionStrings__DefaultConnection
+          value: "Server=mssql,1433;Database=AlertDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
