@@ -38,6 +38,7 @@ services:
       - "5001:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=IdentityDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
     depends_on:
       - mssql
@@ -54,6 +55,7 @@ services:
       - "5002:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=PropertyDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
     depends_on:
       - mssql
@@ -70,6 +72,7 @@ services:
       - "5003:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
       - RabbitMQ__Host=rabbitmq
     depends_on:
       - rabbitmq
@@ -102,6 +105,7 @@ services:
       - "5000:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
     depends_on:
       - identity
       - property
