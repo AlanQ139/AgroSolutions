@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace AgroSolutions.PropertyService.Data;
+
+// -------------------------------------------------------
+// ENTIDADES
+// -------------------------------------------------------
 
 public class Property
 {
@@ -12,6 +14,8 @@ public class Property
     public string Location { get; set; } = string.Empty;
     public decimal TotalArea { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation
     public List<Plot> Plots { get; set; } = new();
 }
 
@@ -20,15 +24,16 @@ public class Plot
     public Guid Id { get; set; }
     public Guid PropertyId { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string CropType { get; set; } = string.Empty; // Cultura plantada
+    public string CropType { get; set; } = string.Empty;
     public decimal Area { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    // Navigation
     public Property Property { get; set; } = null!;
-    public List<SensorData> SensorData { get; set; } = new();
+    public List<SensorReading> SensorReadings { get; set; } = new();
 }
 
-public class SensorData
+public class SensorReading
 {
     public Guid Id { get; set; }
     public Guid PlotId { get; set; }
@@ -37,6 +42,7 @@ public class SensorData
     public decimal Temperature { get; set; }
     public decimal Precipitation { get; set; }
 
+    // Navigation
     public Plot Plot { get; set; } = null!;
 }
 
@@ -47,11 +53,16 @@ public class Alert
     public string AlertType { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public string Severity { get; set; } = "Warning";
-    public DateTime CreatedAt { get; set; }
-    public bool IsResolved { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsResolved { get; set; } = false;
 
+    // Navigation
     public Plot Plot { get; set; } = null!;
 }
+
+// -------------------------------------------------------
+// DBCONTEXT
+// -------------------------------------------------------
 
 public class ApplicationDbContext : DbContext
 {
@@ -62,44 +73,63 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<Plot> Plots => Set<Plot>();
-    public DbSet<SensorData> SensorData => Set<SensorData>();
+    public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
     public DbSet<Alert> Alerts => Set<Alert>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Property>(entity =>
+        // ---- Property ----
+        modelBuilder.Entity<Property>(e =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Location).HasMaxLength(500);
-            entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
-            entity.HasMany(e => e.Plots).WithOne(e => e.Property).HasForeignKey(e => e.PropertyId);
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.Location).HasMaxLength(500);
+            e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
+            e.Property(x => x.TotalArea).HasPrecision(10, 2);
+
+            e.HasMany(x => x.Plots)
+             .WithOne(x => x.Property)
+             .HasForeignKey(x => x.PropertyId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<Plot>(entity =>
+        // ---- Plot ----
+        modelBuilder.Entity<Plot>(e =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.CropType).IsRequired().HasMaxLength(100);
-            entity.HasMany(e => e.SensorData).WithOne(e => e.Plot).HasForeignKey(e => e.PlotId);
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            e.Property(x => x.CropType).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Area).HasPrecision(10, 2);
+
+            e.HasMany(x => x.SensorReadings)
+             .WithOne(x => x.Plot)
+             .HasForeignKey(x => x.PlotId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasMany<Alert>()
+             .WithOne(x => x.Plot)
+             .HasForeignKey(x => x.PlotId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<SensorData>(entity =>
+        // ---- SensorReading ----
+        modelBuilder.Entity<SensorReading>(e =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.SoilMoisture).HasPrecision(5, 2);
-            entity.Property(e => e.Temperature).HasPrecision(5, 2);
-            entity.Property(e => e.Precipitation).HasPrecision(5, 2);
-            entity.HasIndex(e => new { e.PlotId, e.Timestamp });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.SoilMoisture).HasPrecision(5, 2);
+            e.Property(x => x.Temperature).HasPrecision(5, 2);
+            e.Property(x => x.Precipitation).HasPrecision(5, 2);
+            e.HasIndex(x => new { x.PlotId, x.Timestamp });
         });
 
-        modelBuilder.Entity<Alert>(entity =>
+        // ---- Alert ----
+        modelBuilder.Entity<Alert>(e =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.AlertType).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Message).IsRequired().HasMaxLength(1000);
-            entity.Property(e => e.Severity).HasMaxLength(50);
-            entity.HasIndex(e => new { e.PlotId, e.CreatedAt });
+            e.HasKey(x => x.Id);
+            e.Property(x => x.AlertType).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Message).IsRequired().HasMaxLength(1000);
+            e.Property(x => x.Severity).HasMaxLength(50);
+            e.HasIndex(x => new { x.PlotId, x.CreatedAt });
         });
     }
 }
