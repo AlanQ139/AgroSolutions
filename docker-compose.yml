@@ -14,6 +14,11 @@ services:
     volumes:
       - mssql_data:/var/opt/mssql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123' -Q 'SELECT 1' || exit 1"]
+      interval: 15s
+      retries: 10
+      start_period: 30s
 
   # ---------------------------
   # RABBITMQ
@@ -25,6 +30,11 @@ services:
       - "5672:5672"
       - "15672:15672"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      retries: 10
+      start_period: 20s
 
   # ---------------------------
   # IDENTITY SERVICE
@@ -40,6 +50,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=IdentityDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+      - Jwt__Key=AgroSolutions-SuperSecretKey-ChangeInProduction-2024-MinLength32Chars!
+      - Jwt__Issuer=AgroSolutions
+      - Jwt__Audience=AgroSolutions
     depends_on:
       - mssql
 
@@ -57,6 +70,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=PropertyDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+      - Jwt__Key=AgroSolutions-SuperSecretKey-ChangeInProduction-2024-MinLength32Chars!
+      - Jwt__Issuer=AgroSolutions
+      - Jwt__Audience=AgroSolutions
     depends_on:
       - mssql
 
@@ -74,8 +90,12 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
 
   # ---------------------------
   # ALERT SERVICE (WORKER)
@@ -88,10 +108,17 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMQ__Host=rabbitmq
-      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=AlertDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      # Dois bancos: AlertDb (próprio) e PropertyDb (para escrever alertas/leituras lá)
+      - ConnectionStrings__AlertConnection=Server=mssql,1433;Database=AlertDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+      - ConnectionStrings__PropertyConnection=Server=mssql,1433;Database=PropertyDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
     depends_on:
-      - rabbitmq
-      - mssql
+      mssql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
 
   # ---------------------------
   # API GATEWAY
@@ -106,11 +133,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - Jwt__Key=AgroSolutions-SuperSecretKey-ChangeInProduction-2024-MinLength32Chars!
+      - Jwt__Issuer=AgroSolutions
+      - Jwt__Audience=AgroSolutions
     depends_on:
       - identity
       - property
       - sensor
       - alert
+    restart: unless-stopped
 
 volumes:
   mssql_data:
