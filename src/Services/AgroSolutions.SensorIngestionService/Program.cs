@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,5 +50,8 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+app.UseHttpMetrics();    // Coleta métricas HTTP (requests, latência, etc.)
+app.MapMetrics();         // Expõe endpoint /metrics para Prometheus
 
 app.Run();

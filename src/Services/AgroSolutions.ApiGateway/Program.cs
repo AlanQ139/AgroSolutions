@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Prometheus;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,9 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowAll");
+
+app.UseHttpMetrics();    // Coleta métricas HTTP (requests, latência, etc.)
+app.MapMetrics();         // Expõe endpoint /metrics para Prometheus
 
 // Use Ocelot
 await app.UseOcelot();
