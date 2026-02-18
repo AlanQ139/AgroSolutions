@@ -3,39 +3,30 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  # Identity Service
   - job_name: 'identity-service'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['identity:80']
+      - targets: ['identity:8080']
         labels:
           service: 'identity'
 
-  # Property Service
   - job_name: 'property-service'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['property:80']
+      - targets: ['property:8080']
         labels:
           service: 'property'
 
-  # Sensor Ingestion Service
   - job_name: 'sensor-service'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['sensor:80']
+      - targets: ['sensor:8080']
         labels:
           service: 'sensor'
 
-  # API Gateway
   - job_name: 'gateway'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['gateway:80']
+      - targets: ['gateway:8080']
         labels:
           service: 'gateway'
-
-  # Prometheus self-monitoring
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
