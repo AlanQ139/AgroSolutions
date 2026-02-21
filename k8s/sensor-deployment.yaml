@@ -4,7 +4,7 @@ metadata:
   name: sensor
   namespace: agrosolutions
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: sensor
@@ -15,12 +15,37 @@ spec:
     spec:
       containers:
       - name: sensor
-        image: agrosolutions/sensor:latest
+        image: agrosolutions-sensor:latest
         imagePullPolicy: Never
+        ports:
+        - containerPort: 80
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://+:80"
         - name: RabbitMQ__Host
           value: "rabbitmq"
-        ports:
-        - containerPort: 80
+        - name: RabbitMQ__Username
+          value: "guest"
+        - name: RabbitMQ__Password
+          value: "guest"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5

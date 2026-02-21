@@ -15,12 +15,25 @@ spec:
     spec:
       containers:
       - name: alert
-        image: agrosolutions/alert:latest
+        image: agrosolutions-alert:latest
         imagePullPolicy: Never
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Development"
         - name: RabbitMQ__Host
           value: "rabbitmq"
-        - name: ConnectionStrings__DefaultConnection
-          value: "Server=mssql,1433;Database=AlertDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+        - name: RabbitMQ__Username
+          value: "guest"
+        - name: RabbitMQ__Password
+          value: "guest"
+        - name: ConnectionStrings__AlertConnection
+          value: "Server=mssql,1433;Database=AlertDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Connection Timeout=60;"
+        - name: ConnectionStrings__PropertyConnection
+          value: "Server=mssql,1433;Database=PropertyDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Connection Timeout=60;"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

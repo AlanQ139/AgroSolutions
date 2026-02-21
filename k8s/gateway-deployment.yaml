@@ -4,7 +4,7 @@ metadata:
   name: gateway
   namespace: agrosolutions
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: gateway
@@ -15,10 +15,37 @@ spec:
     spec:
       containers:
       - name: gateway
-        image: agrosolutions/gateway:latest
+        image: agrosolutions-gateway:latest
         imagePullPolicy: Never
+        ports:
+        - containerPort: 80
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Development"
-        ports:
-        - containerPort: 80
+        - name: ASPNETCORE_URLS
+          value: "http://+:80"
+        - name: Jwt__Key
+          value: "AgroSolutions-SuperSecretKey-ChangeInProduction-2024-MinLength32Chars!"
+        - name: Jwt__Issuer
+          value: "AgroSolutions"
+        - name: Jwt__Audience
+          value: "AgroSolutions"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
