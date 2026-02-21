@@ -45,10 +45,18 @@ var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-app.UseHttpMetrics();    // Coleta métricas HTTP (requests, latência, etc.)
-app.MapMetrics();         // Expõe endpoint /metrics para Prometheus
+// Endpoint de métricas Prometheus (antes do Ocelot)
+app.MapMetrics("/metrics");
 
-// Use Ocelot
+// Endpoint de health check (antes do Ocelot)
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    service = "ApiGateway",
+    timestamp = DateTime.UtcNow
+}));
+
+// Use Ocelot (deve ser o último)
 await app.UseOcelot();
 
 app.Run();
