@@ -1,4 +1,4 @@
-using AgroSolutions.IdentityService.Data;
+ï»¿using AgroSolutions.IdentityService.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -52,33 +52,23 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "AgroSolutions Identity Service",
+        Title = "AgroSolutions - Identity Service",
         Version = "v1",
-        Description = "Serviço de autenticação e gerenciamento de usuários"
+        Description = "ServiÃ§o de autenticaÃ§Ã£o e autorizaÃ§Ã£o para produtores rurais"
     });
 
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // Adicionar servidores base para o Swagger UI escolher
+    // Isso faz o Swagger montar as URLs corretamente em cada ambiente
+    c.AddServer(new OpenApiServer
     {
-        Description = "JWT Authorization header usando Bearer scheme. Exemplo: 'Bearer {token}'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Url = "/identity",
+        Description = "Via Gateway (Kubernetes/Docker Compose)"
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddServer(new OpenApiServer
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        Url = "",
+        Description = "Acesso Direto (apenas Docker Compose)"
     });
 });
 
@@ -110,7 +100,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-app.UseHttpMetrics();    // Coleta métricas HTTP (requests, latência, etc.)
-app.MapMetrics();         // Expõe endpoint /metrics para Prometheus
+app.UseHttpMetrics();    // Coleta mÃ©tricas HTTP (requests, latÃªncia, etc.)
+app.MapMetrics();         // ExpÃµe endpoint /metrics para Prometheus
 
 app.Run();

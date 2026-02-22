@@ -50,35 +50,59 @@ builder.Services.AddEndpointsApiExplorer();
 // -------------------------------------------------------
 // SWAGGER
 // -------------------------------------------------------
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo
+//    {
+//        Title = "AgroSolutions Property Service",
+//        Version = "v1",
+//        Description = "Serviço de gerenciamento de propriedades e talhões"
+//    });
+//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        Description = "JWT Authorization: 'Bearer {token}'",
+//        Name = "Authorization",
+//        In = ParameterLocation.Header,
+//        Type = SecuritySchemeType.ApiKey,
+//        Scheme = "Bearer"
+//    });
+//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//    {
+//        {
+//            new OpenApiSecurityScheme
+//            {
+//                Reference = new OpenApiReference
+//                {
+//                    Type = ReferenceType.SecurityScheme,
+//                    Id = "Bearer"
+//                }
+//            },
+//            Array.Empty<string>()
+//        }
+//    });
+//});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "AgroSolutions Property Service",
+        Title = "AgroSolutions - Property Service",
         Version = "v1",
-        Description = "Serviço de gerenciamento de propriedades e talhões"
+        Description = "Serviço de gerenciamento de propriedades e talhoes"
     });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+
+    // Adicionar servidores base para o Swagger UI escolher
+    // Isso faz o Swagger montar as URLs corretamente em cada ambiente
+    c.AddServer(new OpenApiServer
     {
-        Description = "JWT Authorization: 'Bearer {token}'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Url = "/property",
+        Description = "Via Gateway (Kubernetes/Docker Compose)"
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+
+    c.AddServer(new OpenApiServer
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        Url = "",
+        Description = "Acesso Direto (apenas Docker Compose)"
     });
 });
 

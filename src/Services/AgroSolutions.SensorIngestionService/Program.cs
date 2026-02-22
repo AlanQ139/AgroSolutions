@@ -25,13 +25,36 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo
+//    {
+//        Title = "AgroSolutions Sensor Ingestion Service",
+//        Version = "v1",
+//        Description = "Serviço de ingestão de dados de sensores IoT"
+//    });
+//});
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "AgroSolutions Sensor Ingestion Service",
+        Title = "AgroSolutions - Sensor Ingestion Service",
         Version = "v1",
-        Description = "Serviço de ingestão de dados de sensores IoT"
+        Description = "Serviço de ingestão de dados de sensores "
+    });
+
+    // Adicionar servidores base para o Swagger UI escolher
+    // Isso faz o Swagger montar as URLs corretamente em cada ambiente
+    c.AddServer(new OpenApiServer
+    {
+        Url = "/sensor",
+        Description = "Via Gateway (Kubernetes/Docker Compose)"
+    });
+
+    c.AddServer(new OpenApiServer
+    {
+        Url = "",
+        Description = "Acesso Direto (apenas Docker Compose)"
     });
 });
 
@@ -39,14 +62,14 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("./v1/swagger.json", "Sensor Ingestion Service v1");
-    });
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI(c =>
+//    {
+//        c.SwaggerEndpoint("./v1/swagger.json", "Sensor Ingestion Service v1");
+//    });
+//}
 
 app.MapControllers();
 app.MapHealthChecks("/health");
