@@ -122,6 +122,42 @@
       ],
       "UpstreamPathTemplate": "/health/sensor",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/v1/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "identity",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/identity/v1/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/v1/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "property",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/property/v1/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/v1/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "sensor",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/sensor/v1/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
     }
   ],
   "GlobalConfiguration": {
