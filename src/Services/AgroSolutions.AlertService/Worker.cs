@@ -190,7 +190,7 @@ public class SensorDataConsumer : IConsumer<SensorDataReceived>
                         data.PlotId,
                         alertType: "Seca",
                         message: $"Alerta de Seca: Umidade do solo abaixo de {droughtThreshold}% " +
-                                 $"nas últimas {durationHours} horas. Valor atual: {data.SoilMoisture:F1}%",
+                                 $"nas ultimas {durationHours} horas. Valor atual: {data.SoilMoisture:F1}%",
                         severity: "Critical"
                     );
                 }
