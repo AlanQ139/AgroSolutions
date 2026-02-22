@@ -117,8 +117,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Property Service v1");
-        c.RoutePrefix = "swagger";
+        c.SwaggerEndpoint("./v1/swagger.json", "Property Service v1");
     });
 }
 
