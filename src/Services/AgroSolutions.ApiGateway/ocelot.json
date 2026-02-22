@@ -1,5 +1,6 @@
 {
   "Routes": [
+    // IDENTITY SERVICE
     {
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
@@ -9,36 +10,20 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/identity/{everything}",
+      "UpstreamPathTemplate": "/identity/api/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
-      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "property",
+          "Host": "identity",
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/property/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
-    },
-    {
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "sensor",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/sensor/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post" ]
+      "UpstreamPathTemplate": "/identity/swagger/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/health",
@@ -50,6 +35,35 @@
         }
       ],
       "UpstreamPathTemplate": "/health/identity",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    // PROPERTY SERVICE
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "property",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/property/api/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "property",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/property/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
@@ -64,6 +78,31 @@
       "UpstreamPathTemplate": "/health/property",
       "UpstreamHttpMethod": [ "Get" ]
     },
+    // SENSOR SERVICE
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "sensor",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/sensor/api/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/swagger/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "sensor",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/sensor/swagger/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
     {
       "DownstreamPathTemplate": "/health",
       "DownstreamScheme": "http",
@@ -76,7 +115,9 @@
       "UpstreamPathTemplate": "/health/sensor",
       "UpstreamHttpMethod": [ "Get" ]
     }
+
   ],
+
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5000"
   }
