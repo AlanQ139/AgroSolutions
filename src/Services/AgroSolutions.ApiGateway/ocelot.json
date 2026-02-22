@@ -1,6 +1,8 @@
 {
   "Routes": [
+    // ============================================
     // IDENTITY SERVICE
+    // ============================================
     {
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
@@ -11,7 +13,7 @@
         }
       ],
       "UpstreamPathTemplate": "/identity/api/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
@@ -23,7 +25,7 @@
         }
       ],
       "UpstreamPathTemplate": "/identity/swagger/{everything}",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/health",
@@ -35,9 +37,12 @@
         }
       ],
       "UpstreamPathTemplate": "/health/identity",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
+
+    // ============================================
     // PROPERTY SERVICE
+    // ============================================
     {
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
@@ -48,7 +53,7 @@
         }
       ],
       "UpstreamPathTemplate": "/property/api/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
@@ -64,7 +69,7 @@
         }
       ],
       "UpstreamPathTemplate": "/property/swagger/{everything}",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/health",
@@ -76,9 +81,12 @@
         }
       ],
       "UpstreamPathTemplate": "/health/property",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
+
+    // ============================================
     // SENSOR SERVICE
+    // ============================================
     {
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
@@ -89,7 +97,7 @@
         }
       ],
       "UpstreamPathTemplate": "/sensor/api/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post" ]
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
@@ -101,7 +109,7 @@
         }
       ],
       "UpstreamPathTemplate": "/sensor/swagger/{everything}",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/health",
@@ -113,11 +121,9 @@
         }
       ],
       "UpstreamPathTemplate": "/health/sensor",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     }
-
   ],
-
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5000"
   }
