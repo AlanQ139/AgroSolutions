@@ -25,15 +25,7 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo
-//    {
-//        Title = "AgroSolutions Sensor Ingestion Service",
-//        Version = "v1",
-//        Description = "Serviço de ingestão de dados de sensores IoT"
-//    });
-//});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -71,10 +63,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
-
-app.UseHttpMetrics();    // Coleta métricas HTTP (requests, latência, etc.)
-app.MapMetrics();         // Expõe endpoint /metrics para Prometheus
+// Coleta métricas HTTP (requests, latência, etc.)
+app.UseHttpMetrics();
+// Expõe endpoint /metrics para Prometheus
+app.MapMetrics();
 
 app.Run();

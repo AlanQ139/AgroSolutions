@@ -50,38 +50,6 @@ builder.Services.AddEndpointsApiExplorer();
 // -------------------------------------------------------
 // SWAGGER
 // -------------------------------------------------------
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo
-//    {
-//        Title = "AgroSolutions Property Service",
-//        Version = "v1",
-//        Description = "Serviço de gerenciamento de propriedades e talhões"
-//    });
-//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//    {
-//        Description = "JWT Authorization: 'Bearer {token}'",
-//        Name = "Authorization",
-//        In = ParameterLocation.Header,
-//        Type = SecuritySchemeType.ApiKey,
-//        Scheme = "Bearer"
-//    });
-//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//    {
-//        {
-//            new OpenApiSecurityScheme
-//            {
-//                Reference = new OpenApiReference
-//                {
-//                    Type = ReferenceType.SecurityScheme,
-//                    Id = "Bearer"
-//                }
-//            },
-//            Array.Empty<string>()
-//        }
-//    });
-//});
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -103,6 +71,42 @@ builder.Services.AddSwaggerGen(c =>
     {
         Url = "",
         Description = "Acesso Direto (apenas Docker Compose)"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header usando o esquema Bearer.
+                      Exemplo: 'Bearer {token}'
+                      
+                      1. Faça login em /api/Auth/login
+                      2. Copie o token recebido
+                      3. Clique no botão 'Authorize'
+                      4. Cole o token (sem 'Bearer ')
+                      5. Clique em 'Authorize'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+
+    // SEM ISTO, o botão "Authorize" não aparece!
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
     });
 });
 
@@ -157,8 +161,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
-
-app.UseHttpMetrics();    // Coleta métricas HTTP (requests, latência, etc.)
-app.MapMetrics();         // Expõe endpoint /metrics para Prometheus
+// Coleta métricas HTTP (requests, latência, etc.)
+app.UseHttpMetrics();
+// Expõe endpoint /metrics para Prometheus
+app.MapMetrics();         
 
 app.Run();
