@@ -62,14 +62,14 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI(c =>
-//    {
-//        c.SwaggerEndpoint("./v1/swagger.json", "Sensor Ingestion Service v1");
-//    });
-//}
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("./v1/swagger.json", "Sensor Ingestion Service v1");
+    });
+}
 
 app.MapControllers();
 app.MapHealthChecks("/health");
