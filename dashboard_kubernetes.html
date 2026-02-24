@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSolutions - Dashboard IoT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .environment-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .login-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .login-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card .label {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .alert-list {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .alert-list h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .alert-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid;
+            background: #f9f9f9;
+        }
+
+        .alert-item.critical {
+            border-color: #e74c3c;
+            background: #fee;
+        }
+
+        .alert-item.warning {
+            border-color: #f39c12;
+            background: #fff5e6;
+        }
+
+        .alert-item.info {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .alert-item .alert-type {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .alert-item .alert-message {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .alert-item .alert-time {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .user-info {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .user-info .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-info .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sensor-data {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .sensor-data h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .sensor-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sensor-card h4 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .sensor-card .sensor-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .sensor-card .sensor-unit {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 AgroSolutions</h1>
+            <p>Plataforma IoT de Agricultura de Precisão</p>
+            <div class="environment-badge">Kubernetes - Docker Desktop</div>
+        </div>
+
+        <div class="error" id="errorMessage"></div>
+
+        <!-- Seção de Login -->
+        <div class="login-section" id="loginSection">
+            <h2>🔐 Login</h2>
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" placeholder="Sua senha" required>
+            </div>
+            <button class="btn" onclick="login()">Entrar</button>
+        </div>
+
+        <!-- Dashboard (oculto inicialmente) -->
+        <div class="dashboard" id="dashboardSection">
+            <div class="user-info">
+                <div>
+                    <span style="color: #999;">Bem-vindo,</span>
+                    <span class="user-name" id="userName"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Sair</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Propriedades</h3>
+                    <div class="value" id="totalProperties">0</div>
+                    <div class="label">Total cadastrado</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Talhões</h3>
+                    <div class="value" id="totalPlots">0</div>
+                    <div class="label">Áreas monitoradas</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Alertas Ativos</h3>
+                    <div class="value" id="activeAlerts">0</div>
+                    <div class="label">Requerem atenção</div>
+                </div>
+            </div>
+
+            <div class="sensor-data">
+                <h2>📊 Última Leitura dos Sensores</h2>
+                <div class="sensor-grid">
+                    <div class="sensor-card">
+                        <h4>Umidade do Solo</h4>
+                        <div class="sensor-value" id="soilMoisture">--</div>
+                        <div class="sensor-unit">%</div>
+                    </div>
+                    <div class="sensor-card">
+                        <h4>Temperatura</h4>
+                        <div class="sensor-value" id="temperature">--</div>
+                        <div class="sensor-unit">°C</div>
+                    </div>
+                    <div class="sensor-card">
+                        <h4>Precipitação</h4>
+                        <div class="sensor-value" id="precipitation">--</div>
+                        <div class="sensor-unit">mm</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-list">
+                <h2>⚠️ Alertas Recentes</h2>
+                <div id="alertsList">
+                    <div class="loading">Carregando alertas...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURAÇÃO: ATUALIZADA PARA KUBERNETES
+        // Base URL agora aponta para o Gateway na porta 30000
+        // ============================================================
+        const API_BASE_URL = 'http://localhost:30000';
+        const API_IDENTITY = `${API_BASE_URL}/identity/api`;
+        const API_PROPERTY = `${API_BASE_URL}/property/api`;
+        const API_SENSOR = `${API_BASE_URL}/sensor/api`;
+
+        let authToken = null;
+        let currentUser = null;
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+            setTimeout(() => {
+                errorDiv.classList.remove('active');
+            }, 5000);
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showError('Por favor, preencha todos os campos');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_IDENTITY}/Auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Credenciais inválidas');
+                }
+
+                const data = await response.json();
+                authToken = data.token;
+                currentUser = {
+                    email: data.email,
+                    fullName: data.fullName
+                };
+
+                document.getElementById('userName').textContent = currentUser.fullName;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').classList.add('active');
+
+                loadDashboardData();
+            } catch (error) {
+                showError('Erro ao fazer login: ' + error.message);
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadProperties(),
+                    loadAlerts()
+                ]);
+            } catch (error) {
+                showError('Erro ao carregar dados: ' + error.message);
+            }
+        }
+
+        async function loadProperties() {
+            try {
+                const response = await fetch(`${API_PROPERTY}/properties`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erro ao carregar propriedades');
+
+                const properties = await response.json();
+                document.getElementById('totalProperties').textContent = properties.length;
+
+                let totalPlots = 0;
+                for (const property of properties) {
+                    totalPlots += property.plots ? property.plots.length : 0;
+
+                    // Carregar dados de sensor do primeiro talhão (se existir)
+                    if (property.plots && property.plots.length > 0) {
+                        await loadSensorData(property.id, property.plots[0].id);
+                    }
+                }
+
+                document.getElementById('totalPlots').textContent = totalPlots;
+            } catch (error) {
+                console.error('Erro ao carregar propriedades:', error);
+            }
+        }
+
+        async function loadSensorData(propertyId, plotId) {
+            try {
+                const response = await fetch(
+                    `${API_PROPERTY}/properties/${propertyId}/plots/${plotId}/sensor-data`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    }
+                );
+
+                if (!response.ok) return;
+
+                const sensorData = await response.json();
+                if (sensorData && sensorData.length > 0) {
+                    const latest = sensorData[0];
+                    document.getElementById('soilMoisture').textContent = latest.soilMoisture.toFixed(1);
+                    document.getElementById('temperature').textContent = latest.temperature.toFixed(1);
+                    document.getElementById('precipitation').textContent = latest.precipitation.toFixed(1);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados de sensores:', error);
+            }
+        }
+
+        async function loadAlerts() {
+            try {
+                const propertiesResponse = await fetch(`${API_PROPERTY}/properties`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!propertiesResponse.ok) throw new Error('Erro ao carregar propriedades');
+
+                const properties = await propertiesResponse.json();
+                let allAlerts = [];
+
+                for (const property of properties) {
+                    if (property.plots) {
+                        for (const plot of property.plots) {
+                            try {
+                                const alertsResponse = await fetch(
+                                    `${API_PROPERTY}/properties/${property.id}/plots/${plot.id}/alerts`,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${authToken}`
+                                        }
+                                    }
+                                );
+
+                                if (alertsResponse.ok) {
+                                    const alerts = await alertsResponse.json();
+                                    allAlerts = allAlerts.concat(alerts.map(alert => ({
+                                        ...alert,
+                                        propertyName: property.name,
+                                        plotName: plot.name
+                                    })));
+                                }
+                            } catch (error) {
+                                console.error('Erro ao carregar alertas do talhão:', error);
+                            }
+                        }
+                    }
+                }
+
+                displayAlerts(allAlerts);
+            } catch (error) {
+                console.error('Erro ao carregar alertas:', error);
+                document.getElementById('alertsList').innerHTML = 
+                    '<p style="color: #999;">Nenhum alerta disponível no momento.</p>';
+            }
+        }
+
+        function displayAlerts(alerts) {
+            const alertsList = document.getElementById('alertsList');
+            const activeAlertsCount = alerts.filter(a => !a.isResolved).length;
+            
+            document.getElementById('activeAlerts').textContent = activeAlertsCount;
+
+            if (alerts.length === 0) {
+                alertsList.innerHTML = '<p style="color: #999;">Nenhum alerta registrado.</p>';
+                return;
+            }
+
+            alerts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            alertsList.innerHTML = alerts.map(alert => {
+                const severityClass = alert.severity.toLowerCase();
+                const date = new Date(alert.createdAt);
+                const timeAgo = getTimeAgo(date);
+
+                return `
+                    <div class="alert-item ${severityClass}">
+                        <div class="alert-type">
+                            ${alert.alertType} - ${alert.propertyName} / ${alert.plotName}
+                            ${alert.isResolved ? '(Resolvido)' : ''}
+                        </div>
+                        <div class="alert-message">${alert.message}</div>
+                        <div class="alert-time">${timeAgo}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'há poucos segundos';
+            if (seconds < 3600) return `há ${Math.floor(seconds / 60)} minutos`;
+            if (seconds < 86400) return `há ${Math.floor(seconds / 3600)} horas`;
+            return `há ${Math.floor(seconds / 86400)} dias`;
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').classList.remove('active');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            if (authToken) {
+                loadDashboardData();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
