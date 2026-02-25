@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: gateway
-        image: agrosolutions-gateway:latest
-        imagePullPolicy: Never
+        image: alqueiroz/agrosolutions-gateway:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:

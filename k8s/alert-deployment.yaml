@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: alert
-        image: agrosolutions-alert:latest
-        imagePullPolicy: Never
+        image: alqueiroz/agrosolutions-alert:latest
+        imagePullPolicy: Always
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Development"

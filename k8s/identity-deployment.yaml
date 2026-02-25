@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: identity
-        image: agrosolutions-identity:latest
-        imagePullPolicy: Never
+        image: alqueiroz/agrosolutions-identity:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:

@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: sensor
-        image: agrosolutions-sensor:latest
-        imagePullPolicy: Never
+        image: alqueiroz/agrosolutions-sensor:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:
