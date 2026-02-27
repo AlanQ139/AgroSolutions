@@ -88,7 +88,6 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT"
     });
 
-    // SEM ISTO, o botão "Authorize" não aparece!
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -113,7 +112,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
+
+}); 
 
 // Health checks
 builder.Services.AddHealthChecks();
@@ -140,11 +140,11 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.MapHealthChecks("/health");
-// Coleta métricas HTTP (requests, latência, etc.)
+
 app.UseHttpMetrics();
-// Expõe endpoint /metrics para Prometheus
 app.MapMetrics();
 
 app.Run();

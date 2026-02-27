@@ -25,7 +25,6 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -54,18 +53,7 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("./v1/swagger.json", "Sensor Ingestion Service v1");
-    });
-}
-
 app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 // Coleta métricas HTTP (requests, latência, etc.)
