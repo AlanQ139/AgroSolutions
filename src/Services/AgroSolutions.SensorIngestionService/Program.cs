@@ -54,11 +54,14 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 app.UseCors("AllowAll");
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.MapControllers();
 app.MapHealthChecks("/health");
-// Coleta métricas HTTP (requests, latência, etc.)
+
 app.UseHttpMetrics();
-// Expõe endpoint /metrics para Prometheus
 app.MapMetrics();
 
 app.Run();

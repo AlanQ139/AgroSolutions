@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroSolutions — Dashboard v5</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --green-900: #1a2e1a;
+    --green-800: #1e3a1e;
+    --green-700: #255225;
+    --green-600: #2d6a2d;
+    --green-500: #3a8a3a;
+    --green-400: #4caf50;
+    --green-300: #81c784;
+    --amber: #ffa726;
+    --red: #ef5350;
+    --blue: #42a5f5;
+    --text-primary: #f0f7f0;
+    --text-secondary: #a5c8a5;
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.08);
+    --input-bg: rgba(0,0,0,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--green-900);
+    color: var(--text-primary);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(45,106,45,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(30,58,30,0.4) 0%, transparent 50%);
+  }
+
+  /* AUTH */
+  #auth-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:2rem; }
+  .auth-card {
+    background: rgba(255,255,255,0.05); border:1px solid var(--card-border);
+    border-radius:20px; padding:3rem; width:100%; max-width:420px;
+    backdrop-filter:blur(20px); box-shadow:0 32px 64px rgba(0,0,0,0.4);
+  }
+  .auth-logo { text-align:center; margin-bottom:2.5rem; }
+  .auth-logo .leaf { font-size:2.8rem; }
+  .auth-logo h1 { font-family:'DM Serif Display',serif; font-size:1.9rem; color:var(--green-300); margin-top:0.5rem; }
+  .auth-logo p { color:var(--text-secondary); font-size:0.85rem; margin-top:0.3rem; }
+  .tab-bar { display:flex; background:rgba(0,0,0,0.3); border-radius:10px; padding:4px; margin-bottom:2rem; gap:4px; }
+  .tab-btn { flex:1; padding:0.6rem; border:none; background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; transition:all 0.2s; }
+  .tab-btn.active { background:var(--green-600); color:var(--text-primary); }
+  .form-tab { display:none; }
+  .form-tab.active { display:block; }
+  .form-group { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1rem; }
+  .form-group label { font-size:0.8rem; color:var(--text-secondary); font-weight:500; letter-spacing:0.05em; text-transform:uppercase; }
+  .form-group input, .form-group select {
+    background:var(--input-bg); border:1px solid var(--card-border); border-radius:10px;
+    padding:0.75rem 1rem; color:var(--text-primary); font-family:'DM Sans',sans-serif;
+    font-size:0.95rem; outline:none; transition:border-color 0.2s; width:100%;
+  }
+  .form-group input:focus, .form-group select:focus { border-color:var(--green-400); }
+  .form-group select option { background:var(--green-900); }
+  .btn-primary {
+    background:var(--green-600); border:none; border-radius:10px; padding:0.85rem;
+    color:white; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:600;
+    cursor:pointer; width:100%; margin-top:0.25rem; transition:background 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { background:var(--green-500); }
+  .btn-primary:active { transform:scale(0.98); }
+  .btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+  .auth-error {
+    background:rgba(239,83,80,0.1); border:1px solid rgba(239,83,80,0.3);
+    color:#ef9a9a; padding:0.65rem 1rem; border-radius:8px; font-size:0.85rem;
+    margin-bottom:0.75rem; display:none;
+  }
+  .auth-error.show { display:block; }
+
+  /* APP */
+  #app { display:none; }
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem;
+    border-bottom:1px solid var(--card-border); backdrop-filter:blur(10px);
+    position:sticky; top:0; z-index:100; background:rgba(26,46,26,0.9);
+  }
+  .topbar-brand { font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--green-300); display:flex; align-items:center; gap:0.5rem; }
+  .topbar-user { display:flex; align-items:center; gap:0.75rem; color:var(--text-secondary); font-size:0.9rem; }
+  .btn-logout { background:rgba(239,83,80,0.15); border:1px solid rgba(239,83,80,0.3); color:#ef9a9a; padding:0.4rem 1rem; border-radius:8px; cursor:pointer; font-size:0.85rem; font-family:'DM Sans',sans-serif; transition:background 0.2s; }
+  .btn-logout:hover { background:rgba(239,83,80,0.25); }
+  .btn-refresh { background:rgba(66,165,245,0.15); border:1px solid rgba(66,165,245,0.3); color:#90caf9; padding:0.4rem 0.9rem; border-radius:8px; cursor:pointer; font-size:0.9rem; font-family:'DM Sans',sans-serif; transition:background 0.2s; display:inline-flex; align-items:center; gap:0.3rem; }
+  .btn-refresh:hover { background:rgba(66,165,245,0.25); }
+
+  .main-content { padding:2rem; max-width:1400px; margin:0 auto; }
+
+  /* API STATUS BAR */
+  .api-bar { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .api-badge { font-size:0.72rem; padding:0.25rem 0.75rem; border-radius:20px; font-weight:600; display:flex; align-items:center; gap:0.35rem; border:1px solid; }
+  .api-badge.ok   { background:rgba(76,175,80,0.1);  border-color:rgba(76,175,80,0.3);  color:var(--green-300); }
+  .api-badge.err  { background:rgba(239,83,80,0.1);  border-color:rgba(239,83,80,0.3);  color:#ef9a9a; }
+  .api-badge.wait { background:rgba(255,167,38,0.1); border-color:rgba(255,167,38,0.3); color:var(--amber); }
+  .api-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+  /* STATS */
+  .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:2rem; }
+  .stat-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; gap:0.5rem; cursor:pointer; transition:border-color 0.2s, background 0.2s; }
+  .stat-card:hover { border-color:rgba(76,175,80,0.4); background:rgba(255,255,255,0.07); }
+  .stat-card.clickable::after { content:'▾ ver lista'; font-size:0.68rem; color:var(--green-400); opacity:0.7; }
+  .stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-secondary); }
+  .stat-value { font-size:2.2rem; font-weight:600; color:var(--text-primary); line-height:1; }
+  .stat-sub { font-size:0.8rem; color:var(--text-secondary); }
+  .stat-icon { font-size:1.4rem; margin-bottom:0.3rem; }
+
+  /* GRID */
+  .dashboard-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+  @media (max-width:900px) { .dashboard-grid { grid-template-columns:1fr; } }
+  .card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:1.5rem; }
+  .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
+  .card-title { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-secondary); font-weight:600; }
+
+  /* SENSOR CARDS */
+  .sensor-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .sensor-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:1.25rem; position:relative; overflow:hidden; }
+  .sensor-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--sensor-color,var(--green-400)); border-radius:14px 14px 0 0; }
+  .s-icon { font-size:1.8rem; margin-bottom:0.5rem; }
+  .s-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-secondary); }
+  .s-value { font-size:1.8rem; font-weight:600; margin:0.3rem 0; }
+  .s-unit { font-size:0.75rem; color:var(--text-secondary); }
+  .s-talhao { font-size:0.75rem; color:var(--text-secondary); margin-top:0.5rem; border-top:1px solid var(--card-border); padding-top:0.5rem; }
+  .s-status { display:inline-block; font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:20px; margin-top:0.4rem; font-weight:600; }
+  .s-status.normal { background:rgba(76,175,80,0.2); color:var(--green-300); }
+  .s-status.alert  { background:rgba(255,167,38,0.2); color:var(--amber); }
+  .s-status.danger { background:rgba(239,83,80,0.2);  color:var(--red); }
+
+  /* CHART */
+  .chart-wrap { position:relative; height:220px; }
+  canvas { width:100% !important; }
+
+  /* PROPS LIST */
+  .prop-list { display:flex; flex-direction:column; gap:0.75rem; }
+  .prop-item { display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); border-radius:10px; padding:0.85rem 1rem; border:1px solid var(--card-border); }
+  .prop-name { font-weight:500; font-size:0.95rem; }
+  .prop-detail { font-size:0.78rem; color:var(--text-secondary); margin-top:0.15rem; }
+  .prop-badge { font-size:0.72rem; padding:0.2rem 0.6rem; border-radius:20px; font-weight:600; }
+  .badge-green { background:rgba(76,175,80,0.2); color:var(--green-300); }
+  .badge-amber { background:rgba(255,167,38,0.2); color:var(--amber); }
+  .talhao-list { display:flex; flex-direction:column; gap:0.6rem; }
+  .talhao-item { display:flex; align-items:center; gap:1rem; background:rgba(0,0,0,0.2); border-radius:10px; padding:0.7rem 1rem; border:1px solid var(--card-border); }
+  .talhao-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .talhao-info { flex:1; }
+  .talhao-name { font-size:0.9rem; font-weight:500; }
+  .talhao-meta { font-size:0.75rem; color:var(--text-secondary); }
+  .empty-state { text-align:center; color:var(--text-secondary); font-size:0.88rem; padding:2rem 1rem; border:1px dashed var(--card-border); border-radius:10px; }
+  .empty-state .ei { font-size:2rem; margin-bottom:0.5rem; }
+
+  /* ALERTS */
+  .alerts-section { margin-bottom:1.5rem; }
+  .alerts-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .alerts-title { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-secondary); font-weight:600; }
+  .btn-clear { background:rgba(239,83,80,0.1); border:1px solid rgba(239,83,80,0.25); color:#ef9a9a; padding:0.3rem 0.8rem; border-radius:8px; cursor:pointer; font-size:0.78rem; font-family:'DM Sans',sans-serif; transition:background 0.2s; }
+  .btn-clear:hover { background:rgba(239,83,80,0.2); }
+  .alerts-list { display:flex; flex-direction:column; gap:0.6rem; max-height:300px; overflow-y:auto; }
+  .alert-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem 1rem; border-radius:10px; border:1px solid; animation:slideIn 0.3s ease; }
+  @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  .alert-item.warning { background:rgba(255,167,38,0.08); border-color:rgba(255,167,38,0.25); }
+  .alert-item.danger  { background:rgba(239,83,80,0.08);  border-color:rgba(239,83,80,0.25); }
+  .alert-item.info    { background:rgba(66,165,245,0.08); border-color:rgba(66,165,245,0.25); }
+  .alert-icon { font-size:1.1rem; flex-shrink:0; margin-top:0.05rem; }
+  .alert-body { flex:1; }
+  .alert-msg  { font-size:0.88rem; font-weight:500; }
+  .alert-meta { font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; }
+  .no-alerts  { text-align:center; color:var(--text-secondary); font-size:0.9rem; padding:2rem; }
+
+  /* SEND / REGISTER FORMS */
+  .send-card { margin-bottom:1.5rem; }
+  .register-section { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+  .form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:0.75rem; align-items:end; }
+  .form-row .form-group { margin-bottom:0; }
+  .form-row .form-group label { font-size:0.72rem; }
+  .form-row .form-group input, .form-row .form-group select { border-radius:8px; padding:0.6rem 0.75rem; font-size:0.9rem; }
+  .btn-send { background:var(--green-600); border:none; border-radius:8px; padding:0.65rem 1.2rem; color:white; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:background 0.2s; height:fit-content; }
+  .btn-send:hover { background:var(--green-500); }
+  .btn-send:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn-reg { background:rgba(76,175,80,0.2); border:1px solid rgba(76,175,80,0.4); border-radius:8px; padding:0.65rem 1.2rem; color:var(--green-300); font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:background 0.2s; height:fit-content; }
+  .btn-reg:hover { background:rgba(76,175,80,0.3); }
+  .btn-reg:disabled { opacity:0.5; cursor:not-allowed; }
+  .section-div { height:1px; background:var(--card-border); margin:1.25rem 0; }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center; padding:2rem; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--green-800); border:1px solid var(--card-border); border-radius:18px; padding:2rem; width:100%; max-width:560px; max-height:80vh; overflow-y:auto; box-shadow:0 32px 64px rgba(0,0,0,0.5); animation:modalIn 0.25s ease; }
+  @keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+  .modal-title { font-size:1rem; font-weight:600; }
+  .modal-close { background:none; border:none; color:var(--text-secondary); font-size:1.4rem; cursor:pointer; line-height:1; }
+  .modal-close:hover { color:var(--text-primary); }
+  .modal-list { display:flex; flex-direction:column; gap:0.75rem; }
+  .modal-empty { text-align:center; color:var(--text-secondary); padding:2rem; font-size:0.9rem; }
+
+  /* TOAST */
+  #toast { position:fixed; bottom:2rem; right:2rem; z-index:999; background:var(--green-700); border:1px solid rgba(76,175,80,0.4); color:var(--text-primary); padding:0.85rem 1.25rem; border-radius:12px; font-size:0.9rem; font-weight:500; transform:translateY(100px); opacity:0; transition:all 0.3s ease; max-width:340px; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+  #toast.show { transform:translateY(0); opacity:1; }
+  #toast.error { background:rgba(30,20,20,0.95); border-color:rgba(239,83,80,0.4); }
+
+  .scrollbar-thin::-webkit-scrollbar { width:4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background:transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background:var(--green-700); border-radius:4px; }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="leaf">🌿</div>
+      <h1>AgroSolutions</h1>
+      <p>Monitoramento Inteligente do Campo</p>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab-btn" onclick="switchTab('register')">Cadastrar</button>
+    </div>
+
+    <div id="tab-login" class="form-tab active">
+      <div class="auth-error" id="login-error"></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="admin@fazenda.com" autocomplete="email"></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar na Plataforma</button>
+    </div>
+
+    <div id="tab-register" class="form-tab">
+      <div class="auth-error" id="register-error"></div>
+      <div class="form-group"><label>Nome Completo</label><input type="text" id="reg-name" placeholder="João da Silva"></div>
+      <div class="form-group"><label>E-mail</label><input type="email" id="reg-email" placeholder="produtor@fazenda.com"></div>
+      <div class="form-group"><label>Senha</label><input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres"></div>
+      <div class="form-group"><label>Confirmar Senha</label><input type="password" id="reg-pass2" placeholder="Repita a senha"></div>
+      <button class="btn-primary" id="btn-register" onclick="doRegister()">Criar Conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">🌿 AgroSolutions</div>
+    <div class="topbar-user">
+      <span id="user-name-display">Produtor</span>
+      <button class="btn-refresh" id="btn-refresh" onclick="loadData()">↻ Atualizar</button>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+
+    <!-- API STATUS BAR -->
+    <div class="api-bar">
+      <div class="api-badge wait" id="badge-identity"><div class="api-dot"></div>Identity API</div>
+      <div class="api-badge wait" id="badge-property"><div class="api-dot"></div>Property API</div>
+      <div class="api-badge wait" id="badge-sensor"><div class="api-dot"></div>Sensor API</div>
+      <div class="api-badge wait" id="badge-poll" style="font-size:0.68rem"><div class="api-dot"></div><span id="poll-label">Polling: aguardando</span></div>
+    </div>
+
+
+    <!-- DEBUG PANEL -->
+    <div id="debug-panel" style="margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
+        <button onclick="toggleDebug()" id="debug-toggle" style="background:rgba(255,255,255,0.06);border:1px solid var(--card-border);color:var(--text-secondary);padding:0.3rem 0.8rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-family:'DM Sans',sans-serif;">🔍 Debug API</button>
+        <button onclick="forcePoll()" style="background:rgba(66,165,245,0.1);border:1px solid rgba(66,165,245,0.3);color:#90caf9;padding:0.3rem 0.8rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-family:'DM Sans',sans-serif;">⚡ Forçar Poll Agora</button>
+        <button onclick="resetEndpointDiscovery()" style="background:rgba(255,167,38,0.1);border:1px solid rgba(255,167,38,0.3);color:#ffa726;padding:0.3rem 0.8rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-family:'DM Sans',sans-serif;">🔄 Re-descobrir Endpoint</button>
+        <span id="debug-endpoint-label" style="font-size:0.75rem;color:var(--text-secondary)">Endpoint de leituras: <em>descobrindo...</em></span>
+      </div>
+      <div id="debug-box" style="display:none;">
+        <div style="background:rgba(0,0,0,0.3);border:1px solid var(--card-border);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.75rem;font-size:0.72rem;font-family:monospace;color:#ffa726;">
+          <strong style="color:#a5c8a5">📋 Plot IDs monitorados (use no Swagger):</strong>
+          <div id="debug-plotids" style="margin-top:0.3rem;line-height:1.8">—</div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;align-items:center;">
+          <input id="manual-endpoint" type="text" placeholder="URL manual ex: http://localhost:30000/sensor/api/Sensors/readings?plotId={plotId}"
+            style="flex:1;background:rgba(0,0,0,0.4);border:1px solid var(--card-border);border-radius:8px;padding:0.5rem 0.75rem;color:var(--text-primary);font-size:0.78rem;font-family:monospace;outline:none;">
+          <button onclick="applyManualEndpoint()" style="background:rgba(76,175,80,0.2);border:1px solid rgba(76,175,80,0.4);color:var(--green-300);padding:0.5rem 0.9rem;border-radius:8px;cursor:pointer;font-size:0.78rem;font-family:'DM Sans',sans-serif;white-space:nowrap;">Usar este endpoint</button>
+        </div>
+        <div style="background:rgba(0,0,0,0.4);border:1px solid var(--card-border);border-radius:10px;padding:1rem;font-size:0.72rem;font-family:monospace;color:#a5c8a5;max-height:200px;overflow-y:auto;line-height:1.7;">
+          <div id="debug-log">Aguardando primeira tentativa de polling...</div>
+        </div>
+      </div>
+    </div>
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card clickable" onclick="openModal('props')">
+        <div class="stat-icon">🏡</div>
+        <div class="stat-label">Propriedades</div>
+        <div class="stat-value" id="stat-props">—</div>
+        <div class="stat-sub">cadastradas</div>
+      </div>
+      <div class="stat-card clickable" onclick="openModal('talhoes')">
+        <div class="stat-icon">🌾</div>
+        <div class="stat-label">Talhões</div>
+        <div class="stat-value" id="stat-talhoes">—</div>
+        <div class="stat-sub">monitorados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📡</div>
+        <div class="stat-label">Leituras Enviadas</div>
+        <div class="stat-value" id="stat-readings">0</div>
+        <div class="stat-sub">nesta sessão</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔔</div>
+        <div class="stat-label">Alertas Ativos</div>
+        <div class="stat-value" id="stat-alerts">0</div>
+        <div class="stat-sub">neste momento</div>
+      </div>
+    </div>
+
+    <!-- SENSOR CARDS -->
+    <div class="sensor-grid">
+      <div class="sensor-card" style="--sensor-color:#42a5f5">
+        <div class="s-icon">💧</div>
+        <div class="s-label">Umidade do Solo</div>
+        <div class="s-value" id="val-humidity">--</div>
+        <div class="s-unit">%</div>
+        <div class="s-talhao" id="talhao-humidity">Aguardando leitura</div>
+        <span class="s-status normal" id="status-humidity">—</span>
+      </div>
+      <div class="sensor-card" style="--sensor-color:#ff8a65">
+        <div class="s-icon">🌡️</div>
+        <div class="s-label">Temperatura</div>
+        <div class="s-value" id="val-temperature">--</div>
+        <div class="s-unit">°C</div>
+        <div class="s-talhao" id="talhao-temperature">Aguardando leitura</div>
+        <span class="s-status normal" id="status-temperature">—</span>
+      </div>
+      <div class="sensor-card" style="--sensor-color:#29b6f6">
+        <div class="s-icon">🌧️</div>
+        <div class="s-label">Precipitação</div>
+        <div class="s-value" id="val-precipitation">--</div>
+        <div class="s-unit">mm</div>
+        <div class="s-talhao" id="talhao-precipitation">Aguardando leitura</div>
+        <span class="s-status normal" id="status-precipitation">—</span>
+      </div>
+    </div>
+
+    <!-- CHART + PROPERTIES -->
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📈 Histórico de Sensores</span>
+          <span style="font-size:0.75rem;color:var(--text-secondary)" id="chart-label">Envie dados para começar</span>
+        </div>
+        <div class="chart-wrap"><canvas id="sensorChart"></canvas></div>
+      </div>
+
+      <div class="card" style="overflow-y:auto;max-height:480px">
+        <div class="card-header">
+          <span class="card-title">🏡 Propriedades & Talhões</span>
+          <span style="font-size:0.73rem;color:var(--text-secondary)" id="props-status">Carregando...</span>
+        </div>
+        <div class="prop-list" id="prop-list">
+          <div class="empty-state"><div class="ei">⏳</div>Carregando da API...</div>
+        </div>
+        <div id="talhao-section" style="margin-top:1.25rem;display:none">
+          <div class="card-title" style="margin-bottom:0.75rem">🌾 Talhões</div>
+          <div class="talhao-list" id="talhao-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CADASTRAR PROPRIEDADE E TALHÃO -->
+    <div class="register-section">
+      <div class="card-header"><span class="card-title">🏡 Cadastrar Nova Propriedade</span></div>
+      <div class="form-row">
+        <div class="form-group"><label>Nome</label><input type="text" id="prop-name" placeholder="Fazenda Santa Rita"></div>
+        <div class="form-group"><label>Localização</label><input type="text" id="prop-loc" placeholder="São Paulo, SP"></div>
+        <div class="form-group"><label>Área Total (ha)</label><input type="number" id="prop-area" placeholder="100" min="0" step="0.1"></div>
+        <button class="btn-reg" id="btn-add-prop" onclick="registerProperty()">+ Propriedade</button>
+      </div>
+
+      <div class="section-div"></div>
+
+      <div class="card-header"><span class="card-title">🌾 Cadastrar Novo Talhão</span></div>
+      <div class="form-row">
+        <div class="form-group"><label>Propriedade</label><select id="talhao-prop"><option value="">Selecione...</option></select></div>
+        <div class="form-group"><label>Nome do Talhão</label><input type="text" id="talhao-name" placeholder="T-01 · Soja Norte"></div>
+        <div class="form-group"><label>Cultura</label><input type="text" id="talhao-crop" placeholder="Soja, Milho..."></div>
+        <div class="form-group"><label>Área (ha)</label><input type="number" id="talhao-area" placeholder="20" min="0" step="0.1"></div>
+        <button class="btn-reg" id="btn-add-talhao" onclick="registerTalhao()">+ Talhão</button>
+      </div>
+    </div>
+
+    <!-- ENVIAR SENSOR -->
+    <div class="card send-card">
+      <div class="card-header">
+        <span class="card-title">📡 Enviar Dados de Sensor</span>
+        <span style="font-size:0.72rem;color:var(--text-secondary)">POST /sensor/api/Sensors/ingest</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Talhão</label><select id="send-talhao"><option value="">Carregando...</option></select></div>
+        <div class="form-group"><label>Umidade do Solo (%)</label><input type="number" id="send-hum" min="0" max="100" value="45"></div>
+        <div class="form-group"><label>Temperatura (°C)</label><input type="number" id="send-temp" min="-10" max="60" value="28"></div>
+        <div class="form-group"><label>Precipitação (mm)</label><input type="number" id="send-prec" min="0" max="500" value="12"></div>
+        <button class="btn-send" id="btn-send" onclick="sendSensor()">Enviar ›</button>
+        <button class="btn-reg" id="btn-simulate" onclick="simulateSensor()" title="Gera valores aleatórios via API de simulação">🎲 Simular</button>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="alerts-section">
+      <div class="alerts-header">
+        <span class="alerts-title">🔔 Alertas Recentes</span>
+        <button class="btn-clear" onclick="clearAlerts()">Limpar</button>
+      </div>
+      <div class="alerts-list scrollbar-thin" id="alerts-list">
+        <div class="no-alerts">Nenhum alerta gerado ainda. Envie dados de sensores para testar.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PROPRIEDADES -->
+<div class="modal-overlay" id="modal-props">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🏡 Propriedades Cadastradas</span>
+      <button class="modal-close" onclick="closeModal('props')">✕</button>
+    </div>
+    <div class="modal-list" id="modal-props-list"></div>
+  </div>
+</div>
+
+<!-- MODAL TALHÕES -->
+<div class="modal-overlay" id="modal-talhoes">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🌾 Talhões Cadastrados</span>
+      <button class="modal-close" onclick="closeModal('talhoes')">✕</button>
+    </div>
+    <div class="modal-list" id="modal-talhoes-list"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ═══════════════════════════════════════════
+// CONFIG — Kubernetes NodePort base
+// ═══════════════════════════════════════════
+const API = {
+  identity: 'http://localhost:30000/identity',
+  property: 'http://localhost:30000/property',
+  sensor:   'http://localhost:30000/sensor',
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let token         = null;
+let currentUser   = null;
+let properties    = [];
+let talhoes       = [];
+let history_      = { labels:[], hum:[], temp:[], prec:[] };
+let alerts        = [];
+let readCount     = 0;
+let chart         = null;
+let pollTimer     = null;
+let knownReadingIds   = new Set();
+// Timestamp-based dedup: track the newest timestamp seen per talhão
+let lastTsPerPlot     = {};  // plotId → ISO string of newest reading seen
+// Track how many readings we had per plot to detect new ones even without IDs
+let readingCountPerPlot = {}; // plotId → number
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+const $ = id => document.getElementById(id);
+
+function toast(msg, isErr = false) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isErr ? ' error' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = '', 3800);
+}
+
+function badge(id, status) {
+  $('badge-' + id).className = 'api-badge ' + status;
+}
+
+// ── Debug log (visível no painel de debug da UI) ──
+const debugLines = [];
+function dbgLog(msg, type = 'info') {
+  const color = type==='ok'?'#81c784': type==='err'?'#ef9a9a': type==='warn'?'#ffa726':'#a5c8a5';
+  const time  = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  debugLines.unshift(`<span style="color:${color}">[${time}] ${msg}</span>`);
+  if (debugLines.length > 40) debugLines.pop();
+  const el = $('debug-log');
+  if (el) el.innerHTML = debugLines.join('<br>');
+  console.log(`[AgroSolutions] ${msg}`);
+}
+
+function toggleDebug() {
+  const box = $('debug-box');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  $('debug-toggle').textContent = isOpen ? '🔍 Debug API' : '🔍 Fechar Debug';
+}
+
+function resetEndpointDiscovery() {
+  discoveredEndpoint = null;
+  readingCountPerPlot = {};
+  dbgLog('🔄 Endpoint resetado — re-descobrindo na próxima poll...', 'warn');
+  const lbl = $('debug-endpoint-label');
+  if (lbl) lbl.innerHTML = `Endpoint de leituras: <em>re-descobrindo...</em>`;
+  forcePoll();
+}
+
+function forcePoll() {
+  dbgLog('⚡ Poll forçado pelo usuário', 'info');
+  pollSensors();
+}
+
+function applyManualEndpoint() {
+  const val = $('manual-endpoint').value.trim();
+  if (!val) { dbgLog('⚠️ URL vazia — informe o endpoint', 'warn'); return; }
+  discoveredEndpoint = val.includes('{plotId}') ? val : val + (val.includes('?') ? '&plotId={plotId}' : '?plotId={plotId}');
+  dbgLog(`✅ Endpoint manual aplicado: ${discoveredEndpoint}`, 'ok');
+  const lbl = $('debug-endpoint-label');
+  if (lbl) lbl.innerHTML = `Endpoint manual: <code style="color:#ffa726">${discoveredEndpoint}</code>`;
+  startPolling();
+}
+
+// Adiciona candidato extra em runtime
+function addEndpointCandidate(url) {
+  dbgLog(`➕ Candidato manual adicionado: ${url}`, 'info');
+  discoveredEndpoint = url;
+  const lbl = $('debug-endpoint-label');
+  if (lbl) lbl.innerHTML = `Endpoint manual: <code style="color:#ffa726">${url}</code>`;
+  startPolling();
+}
+
+async function api(url, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  return fetch(url, { ...opts, headers });
+}
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register'));
+  });
+  $('tab-login').classList.toggle('active', tab==='login');
+  $('tab-register').classList.toggle('active', tab==='register');
+}
+
+async function doLogin() {
+  const email = $('login-email').value.trim();
+  const pass  = $('login-pass').value;
+  const errEl = $('login-error');
+  errEl.className = 'auth-error';
+  if (!email || !pass) { errEl.textContent='Preencha e-mail e senha.'; errEl.className='auth-error show'; return; }
+
+  const btn = $('btn-login');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  badge('identity', 'wait');
+
+  try {
+    const res  = await api(`${API.identity}/api/Auth/login`, { method:'POST', body:JSON.stringify({ email, password:pass }) });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.message || data.title || 'Credenciais inválidas.';
+      errEl.className = 'auth-error show';
+      badge('identity', 'err');
+      return;
+    }
+    token = data.token;
+    currentUser = { name: data.fullName || email.split('@')[0], email: data.email || email };
+    badge('identity', 'ok');
+    showApp();
+  } catch(e) {
+    errEl.textContent = 'Erro de conexão com a API de identidade. Verifique se o servidor está rodando em localhost:30000.';
+    errEl.className = 'auth-error show';
+    badge('identity', 'err');
+  } finally {
+    btn.disabled=false; btn.textContent='Entrar na Plataforma';
+  }
+}
+
+async function doRegister() {
+  const name  = $('reg-name').value.trim();
+  const email = $('reg-email').value.trim();
+  const pass  = $('reg-pass').value;
+  const pass2 = $('reg-pass2').value;
+  const errEl = $('register-error');
+  errEl.className = 'auth-error';
+
+  if (!name||!email||!pass) { errEl.textContent='Preencha todos os campos.'; errEl.className='auth-error show'; return; }
+  if (pass!==pass2)         { errEl.textContent='As senhas não conferem.';   errEl.className='auth-error show'; return; }
+  if (pass.length<8)        { errEl.textContent='Senha mínima: 8 caracteres.'; errEl.className='auth-error show'; return; }
+
+  const btn = $('btn-register');
+  btn.disabled=true; btn.textContent='Cadastrando...';
+  badge('identity','wait');
+
+  try {
+    const res = await api(`${API.identity}/api/Auth/register`, { method:'POST', body:JSON.stringify({ fullName:name, email, password:pass }) });
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({}));
+      errEl.textContent = d.message || d.title || 'Erro ao cadastrar. Tente outro e-mail.';
+      errEl.className='auth-error show';
+      badge('identity','err');
+      return;
+    }
+    badge('identity','ok');
+    toast('✅ Conta criada! Fazendo login...');
+    $('login-email').value = email;
+    $('login-pass').value  = pass;
+    switchTab('login');
+    setTimeout(doLogin, 500);
+  } catch(e) {
+    errEl.textContent='Erro de conexão com a API de identidade.';
+    errEl.className='auth-error show';
+    badge('identity','err');
+  } finally {
+    btn.disabled=false; btn.textContent='Criar Conta';
+  }
+}
+
+function doLogout() {
+  stopPolling();
+  token=null; currentUser=null; properties=[]; talhoes=[];
+  history_={labels:[],hum:[],temp:[],prec:[]}; alerts=[]; readCount=0;
+  knownReadingIds.clear();
+  lastTsPerPlot={};
+  readingCountPerPlot={};
+  if(chart){chart.destroy();chart=null;}
+  $('app').style.display='none';
+  $('auth-screen').style.display='flex';
+  $('login-pass').value='';
+  ['identity','property','sensor'].forEach(b=>badge(b,'wait'));
+  switchTab('login');
+}
+
+function showApp() {
+  $('auth-screen').style.display='none';
+  $('app').style.display='block';
+  $('user-name-display').textContent = currentUser.name;
+  if(!chart) initChart();
+  loadData().then(() => startPolling());
+}
+
+// ═══════════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════════
+async function loadData() {
+  const btn = $('btn-refresh');
+  btn.textContent='↻ Carregando...';
+  badge('property','wait');
+  $('props-status').textContent='Carregando...';
+
+  try {
+    const res  = await api(`${API.property}/api/Properties`);
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+
+    properties = data;
+    talhoes = [];
+    for (const p of properties) {
+      for (const pl of (p.plots||[])) {
+        talhoes.push({
+          id:       pl.id,
+          propId:   p.id,
+          propName: p.name,
+          name:     pl.name,
+          crop:     pl.cropType || '',
+          area:     pl.area || 0,
+          status:   'normal',
+        });
+      }
+    }
+
+    badge('property','ok');
+    $('props-status').textContent=`${properties.length} propriedade(s) · ${talhoes.length} talhão(ões)`;
+    renderAll();
+  } catch(e) {
+    badge('property','err');
+    $('props-status').textContent='Erro ao carregar';
+    toast('⚠️ Não foi possível carregar propriedades da API.', true);
+    renderAll();
+  } finally {
+    btn.textContent='↻ Atualizar';
+    // Re-inicia o polling com talhões atualizados
+    if (token) startPolling();
+  }
+}
+
+// ═══════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════
+function initChart() {
+  const ctx = $('sensorChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        { label:'Umidade (%)',        data:[], borderColor:'#42a5f5', backgroundColor:'rgba(66,165,245,0.08)', tension:0.4, fill:true, pointRadius:4, pointBackgroundColor:'#42a5f5' },
+        { label:'Temperatura (°C)',   data:[], borderColor:'#ff8a65', backgroundColor:'rgba(255,138,101,0.08)', tension:0.4, fill:true, pointRadius:4, pointBackgroundColor:'#ff8a65' },
+        { label:'Precipitação (mm)',  data:[], borderColor:'#29b6f6', backgroundColor:'rgba(41,182,246,0.06)', tension:0.4, fill:true, pointRadius:4, pointBackgroundColor:'#29b6f6' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { labels: { color:'#a5c8a5', font:{size:11,family:'DM Sans'}, boxWidth:12 } },
+        tooltip: { backgroundColor:'rgba(20,36,20,0.96)', borderColor:'rgba(255,255,255,0.1)', borderWidth:1, titleColor:'#f0f7f0', bodyColor:'#a5c8a5' }
+      },
+      scales: {
+        x: { ticks:{color:'#a5c8a5',font:{size:10},maxTicksLimit:10}, grid:{color:'rgba(255,255,255,0.05)'} },
+        y: { ticks:{color:'#a5c8a5',font:{size:10}}, grid:{color:'rgba(255,255,255,0.05)'} }
+      }
+    }
+  });
+}
+
+function pushChart(label, hum, temp, prec) {
+  history_.labels.push(label);
+  history_.hum.push(hum);
+  history_.temp.push(temp);
+  history_.prec.push(prec);
+  const MAX = 20;
+  if (history_.labels.length > MAX) {
+    ['labels','hum','temp','prec'].forEach(k => history_[k].shift());
+  }
+  chart.data.labels            = [...history_.labels];
+  chart.data.datasets[0].data  = [...history_.hum];
+  chart.data.datasets[1].data  = [...history_.temp];
+  chart.data.datasets[2].data  = [...history_.prec];
+  chart.update('active');
+}
+
+// ═══════════════════════════════════════════
+// SENSOR POLLING — busca leituras reais da API
+// ═══════════════════════════════════════════
+//
+// Estratégia multi-endpoint:
+// O Sensor Service recebe POST /ingest e publica no RabbitMQ.
+// O serviço consumidor pode persistir em endpoints variados dependendo da implementação.
+// Testamos em ordem até encontrar qual responde dados válidos.
+//
+// CANDIDATOS (do mais específico ao mais genérico):
+//  1. GET /sensor/api/Sensors/readings?plotId={plotId}
+//  2. GET /sensor/api/Sensors/readings/{plotId}
+//  3. GET /sensor/api/Sensors/history/{plotId}
+//  4. GET /sensor/api/Sensors/{plotId}/readings
+//  5. GET /sensor/api/SensorReadings?plotId={plotId}
+//  6. GET /property/api/Properties/{propId}/plots/{plotId}/sensor-data
+//  7. GET /property/api/Properties/{propId}/plots/{plotId}/readings
+//  8. GET /property/api/SensorReadings?plotId={plotId}
+
+let discoveredEndpoint = null; // cache do endpoint que funcionou
+
+async function discoverSensorEndpoint(t) {
+  if (discoveredEndpoint) return discoveredEndpoint;
+
+  // Candidatos ordenados por probabilidade (baseado no padrão do projeto)
+  // O ingest é POST /sensor/api/Sensors/ingest — o GET de leituras geralmente segue o mesmo serviço
+  const candidates = [
+    `${API.sensor}/api/Sensors/readings?plotId=${t.id}`,
+    `${API.sensor}/api/Sensors/${t.id}/readings`,
+    `${API.sensor}/api/Sensors/readings/${t.id}`,
+    `${API.sensor}/api/Sensors/history?plotId=${t.id}`,
+    `${API.sensor}/api/Sensors/history/${t.id}`,
+    `${API.sensor}/api/Sensors/${t.id}`,
+    `${API.sensor}/api/Sensors?plotId=${t.id}`,
+    `${API.sensor}/api/SensorReadings?plotId=${t.id}`,
+    `${API.sensor}/api/SensorReadings/${t.id}`,
+    `${API.sensor}/api/Readings?plotId=${t.id}`,
+    `${API.sensor}/api/Readings/${t.id}`,
+    `${API.property}/api/Properties/${t.propId}/plots/${t.id}/sensor-data`,
+    `${API.property}/api/Properties/${t.propId}/plots/${t.id}/readings`,
+    `${API.property}/api/SensorReadings?plotId=${t.id}`,
+  ];
+
+  for (const url of candidates) {
+    try {
+      const shortUrl = url.split('/api/')[1] || url;
+      dbgLog(`🔎 Testando: ${shortUrl}`, 'info');
+      const res = await api(url);
+      if (res.ok) {
+        const body = await res.json().catch(() => null);
+        // Aceita o endpoint mesmo se retornar array vazio — significa que o caminho existe
+        const arr = extractReadings(body);
+        if (arr !== null) {
+          console.log(`[AgroSolutions] Endpoint de leituras descoberto: ${url}`);
+          dbgLog(`✅ Endpoint encontrado: GET ${shortUrl}`, 'ok');
+          const lbl = $('debug-endpoint-label');
+          if (lbl) lbl.innerHTML = `Endpoint ativo: <code style="color:#81c784">${shortUrl.replace(t.id,'[plotId]').replace(t.propId||'','[propId]')}</code>`;
+          discoveredEndpoint = url.replace(t.id, '{plotId}').replace(t.propId||'NOPROP', '{propId}');
+          return discoveredEndpoint;
+        }
+        dbgLog(`⚠️ ${shortUrl} retornou 200 mas sem formato reconhecido`, 'warn');
+      } else {
+        dbgLog(`  → HTTP ${res.status}: ${url.split('/api/')[1]?.split('?')[0]}`, 'info');
+      }
+    } catch(e) { dbgLog(`  → Erro: ${e.message}`, 'warn'); }
+  }
+
+  console.warn('[AgroSolutions] Nenhum endpoint de leituras encontrado ainda.');
+  dbgLog('⚠️ Nenhum endpoint respondeu. Abra o Debug e insira o endpoint manualmente.', 'warn');
+  return null;
+}
+
+function buildEndpointUrl(template, t) {
+  return template
+    .replace('{plotId}',  t.id)
+    .replace('{propId}',  t.propId);
+}
+
+function extractReadings(body) {
+  if (!body) return null;
+  if (Array.isArray(body)) return body;
+  // Wrappers comuns de paginação
+  const arr = body.data   || body.Data   ||
+              body.items  || body.Items  ||
+              body.results|| body.Results||
+              body.readings|| body.Readings ||
+              body.value  || body.Value  || null;
+  if (Array.isArray(arr)) return arr;
+  // Objeto único de leitura?
+  if (body.id || body.Id || body.plotId || body.PlotId) return [body];
+  return null;
+}
+
+function normalizeReading(r) {
+  return {
+    id:   r.id   || r.Id   || r.readingId || r.ReadingId || null,
+    hum:  r.soilMoisture   ?? r.SoilMoisture   ??
+          r.soilHumidity   ?? r.SoilHumidity   ??
+          r.humidity       ?? r.Humidity       ?? null,
+    temp: r.temperature    ?? r.Temperature    ?? null,
+    prec: r.precipitation  ?? r.Precipitation  ?? null,
+    ts:   r.timestamp      || r.Timestamp      ||
+          r.createdAt      || r.CreatedAt       ||
+          r.recordedAt     || r.RecordedAt      || null,
+  };
+}
+
+async function pollSensors() {
+  if (!token || talhoes.length === 0) return;
+
+  let hasNew = false;
+
+  for (const t of talhoes) {
+    if (!t.propId) continue;
+    try {
+      // ── Descobre ou usa endpoint já conhecido ──
+      let endpointTpl = discoveredEndpoint;
+
+      if (!endpointTpl) {
+        endpointTpl = await discoverSensorEndpoint(t);
+        if (!endpointTpl) {
+          dbgLog(`⚠️ Talhão ${t.name}: nenhum endpoint encontrado ainda`, 'warn');
+          continue;
+        }
+      }
+
+      const url = buildEndpointUrl(endpointTpl, t);
+      const res = await api(url);
+
+      if (!res.ok) {
+        if (res.status === 404 || res.status === 405) {
+          dbgLog(`⚠️ Endpoint retornou ${res.status} — re-descobrindo...`, 'warn');
+          discoveredEndpoint = null;
+          const lbl = $('debug-endpoint-label');
+          if (lbl) lbl.innerHTML = `Endpoint de leituras: <em>re-descobrindo...</em>`;
+        }
+        continue;
+      }
+
+      const body = await res.json().catch(() => null);
+      const readings = extractReadings(body);
+      if (!readings) continue;
+
+      // ── Detecta readings novas comparando com o total anterior (fallback sem IDs) ──
+      const prevCount = readingCountPerPlot[t.id] || 0;
+      readingCountPerPlot[t.id] = readings.length;
+
+      // Ordena do mais antigo ao mais novo
+      const sorted = [...readings].sort((a, b) => {
+        const da = new Date(a.timestamp||a.Timestamp||a.createdAt||a.CreatedAt||0);
+        const db = new Date(b.timestamp||b.Timestamp||b.createdAt||b.CreatedAt||0);
+        return da - db;
+      });
+
+      // Estratégia 1: filtrar por ID (se disponível)
+      // Estratégia 2: filtrar por timestamp > lastTs (principal para evitar dedup errada)
+      // Estratégia 3: se count aumentou e sem timestamp, pega os últimos itens novos
+      const lastKnownTs = lastTsPerPlot[t.id] ? new Date(lastTsPerPlot[t.id]) : null;
+
+      const newOnes = sorted.filter(r => {
+        const nr = normalizeReading(r);
+
+        // Se tem ID, usa dedup por ID
+        if (nr.id) {
+          const idKey = `id::${t.id}::${nr.id}`;
+          if (knownReadingIds.has(idKey)) return false;
+          r._dedupeKey = idKey;
+          return true;
+        }
+
+        // Se tem timestamp, filtra por > lastTs
+        if (nr.ts) {
+          const tsDate = new Date(nr.ts);
+          if (lastKnownTs && tsDate <= lastKnownTs) return false;
+          // Verifica também hash timestamp+valores
+          const hashKey = `hash::${t.id}::${nr.ts}::${nr.hum}::${nr.temp}::${nr.prec}`;
+          if (knownReadingIds.has(hashKey)) return false;
+          r._dedupeKey = hashKey;
+          return true;
+        }
+
+        // Sem ID nem timestamp: usa count delta — só processa os itens extras no final
+        const idx = sorted.indexOf(r);
+        if (idx >= prevCount) {
+          const countKey = `cnt::${t.id}::${idx}::${nr.hum}::${nr.temp}::${nr.prec}`;
+          r._dedupeKey = countKey;
+          return true;
+        }
+        return false;
+      });
+
+      if (!newOnes.length) {
+        dbgLog(`📡 ${t.name}: ${readings.length} leitura(s), sem novidades`, 'info');
+        continue;
+      }
+
+      dbgLog(`📊 ${t.name}: ${newOnes.length} nova(s) leitura(s) detectada(s)!`, 'ok');
+
+      newOnes.forEach(r => {
+        const nr = normalizeReading(r);
+
+        // Registra a chave de dedup
+        if (r._dedupeKey) knownReadingIds.add(r._dedupeKey);
+
+        // Atualiza o último timestamp visto para este talhão
+        if (nr.ts) {
+          const prev = lastTsPerPlot[t.id];
+          if (!prev || new Date(nr.ts) > new Date(prev)) {
+            lastTsPerPlot[t.id] = nr.ts;
+          }
+        }
+
+        const hum  = Number(nr.hum  ?? 0);
+        const temp = Number(nr.temp ?? 0);
+        const prec = Number(nr.prec ?? 0);
+        const ts   = nr.ts ? new Date(nr.ts) : new Date();
+        const lbl  = ts.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+        readCount++;
+        hasNew = true;
+
+        pushChart(lbl, hum, temp, prec);
+        $('chart-label').textContent = t.name;
+
+        $('val-humidity').textContent      = hum.toFixed(1);
+        $('val-temperature').textContent   = temp.toFixed(1);
+        $('val-precipitation').textContent = prec.toFixed(1);
+        ['humidity','temperature','precipitation'].forEach(s =>
+          $(`talhao-${s}`).textContent = t.name);
+
+        setSt('humidity',
+          hum  < 30 ? 'danger' : hum  < 50 ? 'alert' : 'normal',
+          hum  < 30 ? 'Crítico' : hum < 50 ? 'Baixo' : 'Normal');
+        setSt('temperature',
+          temp > 38 ? 'danger' : temp > 32 ? 'alert' : 'normal',
+          temp > 38 ? 'Crítico' : temp > 32 ? 'Elevada' : 'Normal');
+        setSt('precipitation',
+          prec < 5 ? 'alert' : 'normal',
+          prec < 5 ? 'Baixa' : 'Normal');
+
+        t.status = (hum<30||temp>38) ? 'danger' : (hum<50||temp>32) ? 'alert' : 'normal';
+        checkAlerts(t.name, hum, temp, prec, lbl);
+      });
+
+    } catch(e) {
+      console.warn(`[AgroSolutions] Erro ao buscar leituras do talhão ${t.name}:`, e.message);
+      dbgLog(`❌ Talhão ${t.name}: ${e.message}`, 'err');
+    }
+
+    // ── Busca alertas do backend (tenta múltiplos endpoints) ──
+    const alertCandidates = [
+      `${API.sensor}/api/Sensors/${t.id}/alerts`,
+      `${API.sensor}/api/Alerts?plotId=${t.id}`,
+      `${API.property}/api/Properties/${t.propId}/plots/${t.id}/alerts`,
+      `${API.property}/api/Properties/${t.propId}/plots/${t.id}/status`,
+    ];
+
+    for (const alertUrl of alertCandidates) {
+      try {
+        const sr = await api(alertUrl);
+        if (!sr.ok) continue;
+        const st = await sr.json().catch(() => null);
+        if (!st) continue;
+
+        const backendAlerts = st.activeAlerts || st.ActiveAlerts ||
+                              st.alerts       || st.Alerts       || [];
+        if (!Array.isArray(backendAlerts) || !backendAlerts.length) break;
+
+        backendAlerts.forEach(a => {
+          const key = `alert::${t.id}::${a.alertType||a.AlertType||''}::${a.createdAt||a.CreatedAt||''}`;
+          if (knownReadingIds.has(key)) return;
+          knownReadingIds.add(key);
+
+          const sev  = a.severity || a.Severity || 'Warning';
+          const type = sev==='Critical'?'danger': sev==='High'?'warning':'info';
+          const icon = sev==='Critical'?'🔴': sev==='High'?'🟡':'🔵';
+          const msg  = a.message  || a.Message  || `Alerta: ${a.alertType||a.AlertType||''}`;
+          const ts   = new Date(a.createdAt||a.CreatedAt||Date.now())
+                         .toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+          alerts = [{ _id:key, type, icon, msg, meta:`${t.name} · ${ts}` }, ...alerts];
+          hasNew = true;
+        });
+        break;
+      } catch(e) { /* tenta próximo */ }
+    }
+  }
+
+  if (hasNew) {
+    $('stat-readings').textContent = readCount;
+    $('stat-alerts').textContent   = alerts.length;
+    renderAlerts();
+    renderPropList();
+  }
+
+  badge('sensor', discoveredEndpoint ? 'ok' : 'wait');
+}
+
+let pollCountdown  = 0;
+let pollCountTimer = null;
+
+function startPolling() {
+  stopPolling();
+  // Só reseta endpoint se ainda não foi descoberto (não reseta se já funcionando)
+  if (!discoveredEndpoint) {
+    dbgLog('🔄 Iniciando polling — descobrindo endpoint...', 'info');
+  } else {
+    dbgLog(`🔄 Reiniciando polling (endpoint: ${discoveredEndpoint.split('/api/')[1]||discoveredEndpoint})`, 'info');
+  }
+  pollSensors();
+  pollCountdown = 5;
+  updatePollBadge();
+  pollTimer = setInterval(() => {
+    pollSensors();
+    pollCountdown = 5;
+  }, 5000);
+  pollCountTimer = setInterval(() => {
+    pollCountdown = Math.max(0, pollCountdown - 1);
+    updatePollBadge();
+  }, 1000);
+}
+
+function stopPolling() {
+  if (pollTimer)      { clearInterval(pollTimer);      pollTimer = null; }
+  if (pollCountTimer) { clearInterval(pollCountTimer); pollCountTimer = null; }
+  const b = document.getElementById('badge-poll');
+  if (b) b.className = 'api-badge wait';
+}
+
+function updatePollBadge() {
+  const b = document.getElementById('badge-poll');
+  const l = document.getElementById('poll-label');
+  if (!b || !l) return;
+  b.className = discoveredEndpoint ? 'api-badge ok' : 'api-badge wait';
+  l.textContent = discoveredEndpoint
+    ? `Auto-refresh: ${pollCountdown}s`
+    : `Descobrindo API… ${pollCountdown}s`;
+}
+
+// Adiciona candidato extra em runtime (para quando o usuário informar o endpoint correto)
+function addEndpointCandidate(url) {
+  dbgLog(`➕ Candidato manual adicionado: ${url}`, 'info');
+  discoveredEndpoint = url;
+  const lbl = $('debug-endpoint-label');
+  if (lbl) lbl.innerHTML = `Endpoint manual: <code style="color:#ffa726">${url}</code>`;
+  startPolling();
+}
+
+// ═══════════════════════════════════════════
+// REGISTER PROPERTY
+// ═══════════════════════════════════════════
+async function registerProperty() {
+  const name = $('prop-name').value.trim();
+  const loc  = $('prop-loc').value.trim();
+  const area = parseFloat($('prop-area').value) || 0;
+  if (!name) { toast('Informe o nome da propriedade.', true); return; }
+
+  const btn = $('btn-add-prop');
+  btn.disabled=true; btn.textContent='Salvando...';
+
+  try {
+    const res = await api(`${API.property}/api/Properties`, {
+      method: 'POST',
+      body: JSON.stringify({ name, location: loc||'Não informado', totalArea: area })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.message || e.title || 'Erro ao cadastrar propriedade');
+    }
+    $('prop-name').value=''; $('prop-loc').value=''; $('prop-area').value='';
+    toast('✅ Propriedade cadastrada!');
+    await loadData();
+  } catch(e) {
+    toast('❌ '+e.message, true);
+  } finally {
+    btn.disabled=false; btn.textContent='+ Propriedade';
+  }
+}
+
+// ═══════════════════════════════════════════
+// REGISTER TALHAO
+// ═══════════════════════════════════════════
+async function registerTalhao() {
+  const propId = $('talhao-prop').value;
+  const name   = $('talhao-name').value.trim();
+  const crop   = $('talhao-crop').value.trim();
+  const area   = parseFloat($('talhao-area').value) || 0;
+  if (!propId) { toast('Selecione uma propriedade.', true); return; }
+  if (!name)   { toast('Informe o nome do talhão.', true); return; }
+
+  const btn = $('btn-add-talhao');
+  btn.disabled=true; btn.textContent='Salvando...';
+
+  try {
+    const res = await api(`${API.property}/api/Properties/${propId}/plots`, {
+      method: 'POST',
+      body: JSON.stringify({ name, cropType: crop||'Não informado', area })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.message || e.title || 'Erro ao cadastrar talhão');
+    }
+    $('talhao-name').value=''; $('talhao-crop').value=''; $('talhao-area').value='';
+    toast('✅ Talhão cadastrado!');
+    await loadData();
+  } catch(e) {
+    toast('❌ '+e.message, true);
+  } finally {
+    btn.disabled=false; btn.textContent='+ Talhão';
+  }
+}
+
+// ═══════════════════════════════════════════
+// SIMULATE SENSOR (via GET /simulate/{plotId})
+// ═══════════════════════════════════════════
+async function simulateSensor() {
+  const talhaoId = $('send-talhao').value;
+  if (!talhaoId) { toast('Selecione um talhão para simular.', true); return; }
+
+  const btn = $('btn-simulate');
+  btn.disabled = true; btn.textContent = '...';
+  badge('sensor','wait');
+
+  try {
+    const res = await api(`${API.sensor}/api/Sensors/simulate/${talhaoId}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const resp = await res.json();
+    const d = resp.data || resp;
+
+    const hum  = d.soilMoisture  ?? d.soilHumidity ?? 0;
+    const temp = d.temperature   ?? 0;
+    const prec = d.precipitation ?? 0;
+
+    // Preenche os campos do formulário com os valores simulados
+    $('send-hum').value  = hum.toFixed(1);
+    $('send-temp').value = temp.toFixed(1);
+    $('send-prec').value = prec.toFixed(1);
+
+    const talhao  = talhoes.find(t => t.id === talhaoId);
+    const label   = talhao ? talhao.name : 'Talhão';
+    const now     = new Date(d.timestamp || Date.now());
+    const timeLbl = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+    // Registra como ID conhecido para evitar duplicata no polling
+    if (d.id) knownReadingIds.add(d.id);
+
+    // Atualiza gráfico e cards imediatamente
+    pushChart(timeLbl, hum, temp, prec);
+    $('chart-label').textContent = label;
+
+    $('val-humidity').textContent      = hum.toFixed(1);
+    $('val-temperature').textContent   = temp.toFixed(1);
+    $('val-precipitation').textContent = prec.toFixed(1);
+    ['humidity','temperature','precipitation'].forEach(s =>
+      $(`talhao-${s}`).textContent = label);
+
+    setSt('humidity',      hum  < 30 ? 'danger' : hum  < 50 ? 'alert' : 'normal',
+                           hum  < 30 ? 'Crítico' : hum  < 50 ? 'Baixo'   : 'Normal');
+    setSt('temperature',   temp > 38 ? 'danger' : temp > 32 ? 'alert' : 'normal',
+                           temp > 38 ? 'Crítico' : temp > 32 ? 'Elevada' : 'Normal');
+    setSt('precipitation', prec <  5 ? 'alert' : 'normal', prec < 5 ? 'Baixa' : 'Normal');
+
+    if (talhao) {
+      talhao.status = (hum<30||temp>38) ? 'danger' : (hum<50||temp>32) ? 'alert' : 'normal';
+      renderPropList();
+    }
+
+    readCount++;
+    $('stat-readings').textContent = readCount;
+    checkAlerts(label, hum, temp, prec, timeLbl);
+    badge('sensor','ok');
+    toast(`🎲 Simulado: Umid ${hum.toFixed(1)}% · Temp ${temp.toFixed(1)}°C · Prec ${prec.toFixed(1)}mm`);
+  } catch(e) {
+    badge('sensor','err');
+    toast('❌ Erro na simulação: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.textContent = '🎲 Simular';
+  }
+}
+
+// ═══════════════════════════════════════════
+// SEND SENSOR DATA
+// ═══════════════════════════════════════════
+async function sendSensor() {
+  const talhaoId = $('send-talhao').value;
+  const hum  = parseFloat($('send-hum').value);
+  const temp = parseFloat($('send-temp').value);
+  const prec = parseFloat($('send-prec').value);
+
+  if (!talhaoId)                   { toast('Selecione um talhão.', true); return; }
+  if (isNaN(hum)||isNaN(temp)||isNaN(prec)) { toast('Preencha todos os valores.', true); return; }
+
+  const btn = $('btn-send');
+  btn.disabled=true; btn.textContent='Enviando...';
+  badge('sensor','wait');
+
+  try {
+    const payload = {
+      plotId:        talhaoId,
+      soilMoisture:  hum,
+      temperature:   temp,
+      precipitation: prec,
+    };
+
+    const res = await api(`${API.sensor}/api/Sensors/ingest`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      throw new Error(e.message || e.title || `HTTP ${res.status}`);
+    }
+
+    const resp = await res.json().catch(()=>({}));
+    badge('sensor','ok');
+
+    const talhao = talhoes.find(t => t.id === talhaoId);
+    const label  = talhao ? talhao.name : 'Talhão';
+    const now    = new Date();
+    const timeLbl = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+    // NÃO adicionar eventId ao knownReadingIds — o eventId é diferente do ID da leitura persistida
+    // Apenas atualiza o gráfico imediatamente com os valores que foram enviados
+    pushChart(timeLbl, hum, temp, prec);
+    $('chart-label').textContent = label;
+
+    // Update sensor cards
+    $('val-humidity').textContent      = hum.toFixed(1);
+    $('val-temperature').textContent   = temp.toFixed(1);
+    $('val-precipitation').textContent = prec.toFixed(1);
+    ['humidity','temperature','precipitation'].forEach(s => $(`talhao-${s}`).textContent = label);
+
+    setSt('humidity',      hum  < 30 ? 'danger' : hum  < 50 ? 'alert' : 'normal',
+                           hum  < 30 ? 'Crítico' : hum  < 50 ? 'Baixo'   : 'Normal');
+    setSt('temperature',   temp > 38 ? 'danger' : temp > 32 ? 'alert' : 'normal',
+                           temp > 38 ? 'Crítico' : temp > 32 ? 'Elevada' : 'Normal');
+    setSt('precipitation', prec <  5 ? 'alert' : 'normal', prec < 5 ? 'Baixa' : 'Normal');
+
+    // Update local talhao status
+    if (talhao) {
+      talhao.status = (hum<30||temp>38) ? 'danger' : (hum<50||temp>32) ? 'alert' : 'normal';
+      renderPropList();
+    }
+
+    readCount++;
+    $('stat-readings').textContent = readCount;
+    checkAlerts(label, hum, temp, prec, timeLbl);
+
+    // Pré-registra o timestamp desta leitura para o polling não duplicar
+    // (quando o RabbitMQ processar, a leitura persistida terá timestamp próximo ao now)
+    const sendTs = now.toISOString();
+    // Registra hash para evitar duplicata quando o polling buscar
+    const hashKey = `hash::${talhaoId}::${sendTs}::${hum}::${temp}::${prec}`;
+    knownReadingIds.add(hashKey);
+    // Atualiza lastTs para este talhão para que o poll não reexiba leituras antigas
+    if (!lastTsPerPlot[talhaoId] || new Date(sendTs) > new Date(lastTsPerPlot[talhaoId])) {
+      lastTsPerPlot[talhaoId] = sendTs;
+    }
+
+    const eid = resp.eventId ? ` · Event: ${resp.eventId.substring(0,8)}…` : '';
+    toast(`✅ Dados enviados! Aguardando processamento${eid}`);
+    dbgLog(`✅ Ingest OK → ${label}: Umid ${hum}% · Temp ${temp}°C · Prec ${prec}mm`, 'ok');
+
+    // Poll com delay para pegar a leitura após processamento do RabbitMQ
+    setTimeout(() => {
+      dbgLog('⏱️ Poll pós-ingest (2s)...', 'info');
+      pollSensors();
+    }, 2000);
+    setTimeout(() => {
+      dbgLog('⏱️ Poll pós-ingest (5s)...', 'info');
+      pollSensors();
+    }, 5000);
+  } catch(e) {
+    badge('sensor','err');
+    toast('❌ Erro ao enviar: ' + e.message, true);
+  } finally {
+    btn.disabled=false; btn.textContent='Enviar ›';
+  }
+}
+
+function setSt(sensor, level, text) {
+  const el = $('status-'+sensor);
+  el.className = 's-status '+level;
+  el.textContent = text;
+}
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function renderAll() {
+  $('stat-props').textContent   = properties.length;
+  $('stat-talhoes').textContent = talhoes.length;
+  renderPropList();
+  renderSelects();
+  // Atualiza a lista de Plot IDs no painel de debug (útil para testes no Swagger)
+  const plotEl = $('debug-plotids');
+  if (plotEl) {
+    if (talhoes.length === 0) {
+      plotEl.textContent = 'Nenhum talhão cadastrado ainda';
+    } else {
+      plotEl.innerHTML = talhoes.map(t =>
+        `<div><span style="color:#f0f7f0;font-weight:600">${t.name}</span>: <span style="color:#ffa726;user-select:all">${t.id}</span></div>`
+      ).join('');
+    }
+  }
+}
+
+function renderPropList() {
+  const propList = $('prop-list');
+  const tSec     = $('talhao-section');
+  const tList    = $('talhao-list');
+
+  if (properties.length === 0) {
+    propList.innerHTML = `<div class="empty-state"><div class="ei">🏡</div>Nenhuma propriedade cadastrada ainda.<br>Use o formulário abaixo.</div>`;
+    tSec.style.display = 'none';
+    return;
+  }
+
+  propList.innerHTML = properties.map(p => {
+    const pts  = talhoes.filter(t => t.propId === p.id);
+    const hasA = pts.some(t => t.status !== 'normal');
+    const crops = [...new Set(pts.map(t=>t.crop).filter(Boolean))].join(', ');
+    const aInfo = p.totalArea ? ` · ${p.totalArea}ha` : '';
+    return `
+      <div class="prop-item">
+        <div>
+          <div class="prop-name">${p.name}</div>
+          <div class="prop-detail">${p.location||''}${aInfo} · ${pts.length} talhão(ões)${crops?' — '+crops:''}</div>
+        </div>
+        <span class="prop-badge ${hasA?'badge-amber':'badge-green'}">${hasA?'Alerta':'Normal'}</span>
+      </div>`;
+  }).join('');
+
+  if (talhoes.length > 0) {
+    tSec.style.display = 'block';
+    tList.innerHTML = talhoes.map(t => {
+      const dot = t.status==='normal'?'#4caf50':t.status==='alert'?'#ffa726':'#ef5350';
+      const sc  = t.status==='normal'?'normal':t.status==='alert'?'alert':'danger';
+      const st  = t.status==='normal'?'Normal':t.status==='alert'?'Alerta':'Crítico';
+      const a   = t.area ? ` · ${t.area}ha` : '';
+      return `
+        <div class="talhao-item">
+          <div class="talhao-dot" style="background:${dot}"></div>
+          <div class="talhao-info">
+            <div class="talhao-name">${t.name}</div>
+            <div class="talhao-meta">${t.propName} · ${t.crop}${a}</div>
+          </div>
+          <span class="s-status ${sc}">${st}</span>
+        </div>`;
+    }).join('');
+  } else {
+    tSec.style.display = 'none';
+  }
+}
+
+function renderSelects() {
+  // Prop select for talhao form
+  $('talhao-prop').innerHTML = '<option value="">Selecione...</option>' +
+    properties.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+
+  // Talhao select for sensor form
+  const sel = $('send-talhao');
+  if (talhoes.length === 0) {
+    sel.innerHTML = '<option value="">Nenhum talhão cadastrado</option>';
+  } else {
+    sel.innerHTML = talhoes.map(t=>`<option value="${t.id}">${t.name} — ${t.propName}</option>`).join('');
+  }
+}
+
+// ═══════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════
+function openModal(type) {
+  if (type === 'props') {
+    $('modal-props-list').innerHTML = properties.length === 0
+      ? '<div class="modal-empty">Nenhuma propriedade cadastrada ainda.</div>'
+      : properties.map(p => {
+          const pts = talhoes.filter(t=>t.propId===p.id);
+          const a   = p.totalArea ? ` · ${p.totalArea}ha` : '';
+          return `
+            <div class="prop-item">
+              <div>
+                <div class="prop-name">${p.name}</div>
+                <div class="prop-detail">${p.location||''}${a} · ${pts.length} talhão(ões)</div>
+                <div style="font-size:0.68rem;color:var(--text-secondary);margin-top:0.3rem;opacity:0.6">ID: ${p.id}</div>
+              </div>
+              <span class="prop-badge badge-green">Ativo</span>
+            </div>`;
+        }).join('');
+    $('modal-props').classList.add('open');
+  } else {
+    $('modal-talhoes-list').innerHTML = talhoes.length === 0
+      ? '<div class="modal-empty">Nenhum talhão cadastrado ainda.</div>'
+      : talhoes.map(t => {
+          const dot = t.status==='normal'?'#4caf50':t.status==='alert'?'#ffa726':'#ef5350';
+          const sc  = t.status==='normal'?'normal':t.status==='alert'?'alert':'danger';
+          const st  = t.status==='normal'?'Normal':t.status==='alert'?'Alerta':'Crítico';
+          const a   = t.area ? ` · ${t.area}ha` : '';
+          return `
+            <div class="talhao-item">
+              <div class="talhao-dot" style="background:${dot}"></div>
+              <div class="talhao-info">
+                <div class="talhao-name">${t.name}</div>
+                <div class="talhao-meta">${t.propName} · ${t.crop}${a}</div>
+                <div style="font-size:0.68rem;color:var(--text-secondary);margin-top:0.2rem;opacity:0.6">ID: ${t.id}</div>
+              </div>
+              <span class="s-status ${sc}">${st}</span>
+            </div>`;
+        }).join('');
+    $('modal-talhoes').classList.add('open');
+  }
+}
+
+function closeModal(type) { $('modal-'+type).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); });
+});
+
+// ═══════════════════════════════════════════
+// ALERT ENGINE
+// ═══════════════════════════════════════════
+function checkAlerts(label, hum, temp, prec, time) {
+  const na = [];
+  if      (hum  < 30) na.push({type:'danger',  icon:'🔴', msg:`Alerta de Seca — Umidade crítica (${hum.toFixed(1)}%)`,            meta:`${label} · ${time}`});
+  else if (hum  < 40) na.push({type:'warning', icon:'🟡', msg:`Umidade baixa (${hum.toFixed(1)}%) — monitorar talhão`,            meta:`${label} · ${time}`});
+  if      (temp > 38) na.push({type:'danger',  icon:'🔴', msg:`Temperatura crítica (${temp.toFixed(1)}°C) — risco de estresse`,   meta:`${label} · ${time}`});
+  else if (temp > 32) na.push({type:'warning', icon:'🟡', msg:`Temperatura elevada (${temp.toFixed(1)}°C)`,                        meta:`${label} · ${time}`});
+  if      (prec > 80) na.push({type:'info',    icon:'🔵', msg:`Precipitação intensa (${prec.toFixed(1)}mm) — verificar drenagem`, meta:`${label} · ${time}`});
+
+  if (na.length > 0) {
+    alerts = [...na, ...alerts];
+    $('stat-alerts').textContent = alerts.length;
+    renderAlerts();
+  }
+}
+
+function renderAlerts() {
+  const list = $('alerts-list');
+  if (alerts.length === 0) {
+    list.innerHTML = '<div class="no-alerts">Nenhum alerta gerado ainda. Envie dados de sensores para testar.</div>';
+    $('stat-alerts').textContent = '0';
+    return;
+  }
+  list.innerHTML = alerts.map(a => `
+    <div class="alert-item ${a.type}">
+      <span class="alert-icon">${a.icon}</span>
+      <div class="alert-body">
+        <div class="alert-msg">${a.msg}</div>
+        <div class="alert-meta">${a.meta}</div>
+      </div>
+    </div>`).join('');
+}
+
+function clearAlerts() { alerts=[]; renderAlerts(); $('stat-alerts').textContent='0'; }
+
+// Keyboard: Enter to login/register, Esc to close modals
+document.addEventListener('keydown', e => {
+  if (e.key==='Enter' && $('auth-screen').style.display!=='none') {
+    const at = document.querySelector('.form-tab.active');
+    if (at?.id==='tab-login')    doLogin();
+    if (at?.id==='tab-register') doRegister();
+  }
+  if (e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+});
+</script>
+</body>
+</html>
